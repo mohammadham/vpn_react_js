@@ -1,0 +1,159 @@
+{
+  "identity": {
+    "name": "E1 - The Anti-AI Designer",
+    "tone": "Cyber Stealth, Professional, Privacy-First",
+    "mission": "Build a V2Ray VPN manager that feels like a hacker's command center but works like a consumer app."
+  },
+  "visual_language": {
+    "theme": "dark",
+    "colors": {
+      "background": {
+        "app": "#0B0F19",
+        "card": "#151B2B",
+        "overlay": "rgba(11, 15, 25, 0.85)"
+      },
+      "primary": {
+        "DEFAULT": "#00FF94",
+        "foreground": "#000000",
+        "hover": "#00CC76",
+        "glow": "0 0 20px rgba(0, 255, 148, 0.4)"
+      },
+      "secondary": {
+        "DEFAULT": "#3B82F6",
+        "foreground": "#FFFFFF"
+      },
+      "status": {
+        "connected": "#00FF94",
+        "disconnected": "#FF3333",
+        "connecting": "#FACC15",
+        "latency_good": "#00FF94",
+        "latency_med": "#FACC15",
+        "latency_bad": "#FF3333"
+      },
+      "text": {
+        "primary": "#F3F4F6",
+        "secondary": "#9CA3AF",
+        "muted": "#6B7280"
+      },
+      "border": "#2D3748"
+    },
+    "typography": {
+      "font_family_persian": "Vazirmatn",
+      "font_family_code": "JetBrains Mono, monospace",
+      "font_family_latin": "Inter, sans-serif",
+      "scale": {
+        "h1": "text-2xl font-bold tracking-tight",
+        "h2": "text-xl font-bold",
+        "body": "text-base font-normal leading-relaxed",
+        "caption": "text-sm text-gray-400"
+      }
+    },
+    "layout": {
+      "direction": "rtl",
+      "spacing": "p-4",
+      "radius": {
+        "card": "rounded-xl",
+        "button": "rounded-lg",
+        "input": "rounded-lg"
+      },
+      "shadows": {
+        "card": "shadow-lg shadow-black/50",
+        "glow": "shadow-[0_0_15px_rgba(0,255,148,0.15)]"
+      }
+    }
+  },
+  "components": {
+    "buttons": {
+      "connect_huge": "w-48 h-48 rounded-full border-4 border-primary/20 bg-primary/10 flex items-center justify-center shadow-[0_0_40px_rgba(0,255,148,0.2)] active:scale-95 transition-all",
+      "primary": "bg-primary text-black font-bold py-3 px-6 rounded-lg shadow-lg active:opacity-90",
+      "icon": "p-2 rounded-full bg-card hover:bg-white/5"
+    },
+    "cards": {
+      "config_item": "bg-card border border-white/5 rounded-xl p-4 flex flex-row-reverse items-center justify-between mb-3 active:bg-white/5",
+      "stats": "bg-card/50 backdrop-blur-md border border-white/5 rounded-xl p-4 flex flex-col items-center"
+    },
+    "inputs": {
+      "text": "bg-black/40 border border-white/10 rounded-lg p-3 text-right text-white focus:border-primary focus:ring-1 focus:ring-primary outline-none placeholder:text-gray-600"
+    }
+  },
+  "assets": {
+    "images": {
+      "dashboard_bg": {
+        "url": "https://images.unsplash.com/photo-1764258057610-be7ca21a0978?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NTYxODl8MHwxfHNlYXJjaHwyfHxkaWdpdGFsJTIwbmV0d29yayUyMGNvbm5lY3Rpb24lMjBtYXAlMjBkYXJrJTIwYmx1ZSUyMGJhY2tncm91bmR8ZW58MHx8fHwxNzcwNjI2NzY5fDA&ixlib=rb-4.1.0&q=85",
+        "alt": "Cyber network background",
+        "usage": "Use as a subtle background image with high opacity overlay (90% black) for the main dashboard screen."
+      }
+    },
+    "icons": {
+      "library": "@expo/vector-icons",
+      "families": {
+        "general": "MaterialCommunityIcons",
+        "nav": "Ionicons"
+      },
+      "mapping": {
+        "connect": "power",
+        "telegram": "telegram",
+        "settings": "cog",
+        "list": "format-list-bulleted",
+        "check": "check-circle",
+        "close": "close-circle",
+        "latency": "wifi-strength-4"
+      }
+    }
+  },
+  "layout_structure": {
+    "screens": [
+      {
+        "name": "Dashboard (Home)",
+        "layout": "flex-1 bg-background relative",
+        "sections": [
+          "Header: Connection Status (Connected/Disconnected)",
+          "Hero: Huge Circular Connect Button (Pulse animation)",
+          "Stats: IP, Protocol, Ping (Grid layout)",
+          "Footer: Current Config Name & Telegram Channel"
+        ]
+      },
+      {
+        "name": "Configs (List)",
+        "layout": "flex-1 bg-background p-4",
+        "sections": [
+          "Header: 'Configs' title + Update Button",
+          "List: VirtualizedList of ConfigCards",
+          "ConfigCard: Name, Protocol (Badge), Latency (Color coded), Telegram Icon"
+        ]
+      },
+      {
+        "name": "Settings",
+        "layout": "flex-1 bg-background p-4",
+        "sections": [
+          "Input: Subscription URL",
+          "Toggle: Auto Connect",
+          "About"
+        ]
+      }
+    ],
+    "navigation": {
+      "type": "BottomTabNavigator",
+      "style": {
+        "backgroundColor": "#151B2B",
+        "borderTopColor": "#2D3748",
+        "activeTintColor": "#00FF94",
+        "inactiveTintColor": "#6B7280"
+      }
+    }
+  },
+  "technical_instructions": {
+    "rtl_setup": "Ensure I18nManager.forceRTL(true) is called at app entry. Restart required if changing for first time.",
+    "parser_strategy": "Create 'utils/vpnParser.js'. Do NOT use heavy node libraries. Implement manual parsing for 'vmess://' (base64 decode -> json), 'vless://' (regex), 'trojan://', 'ss://'.",
+    "ping_test": "Simulate ping by using fetch(HEAD) to a target (e.g., google.com) through the proxy if possible, or simple JS timer for simulation if proxy binding isn't available in Expo Go.",
+    "icons_usage": "Import from @expo/vector-icons. <MaterialCommunityIcons name='...' />"
+  },
+  "universal_guidelines": [
+    "Always use 'flex-row-reverse' for horizontal lists to support RTL visually if native RTL acts up, but prefer native RTL.",
+    "Texts must be right-aligned (text-right).",
+    "Use 'Vazirmatn' font for all Persian text.",
+    "Don't use gradients for text, it's hard to read in RTL scripts sometimes.",
+    "Ensure high contrast (AA standard).",
+    "All interactive elements must have 'activeOpacity={0.7}' for tactile feedback."
+  ]
+}
