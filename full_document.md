@@ -18,15 +18,15 @@
 - **Core:** React Native 0.81.5 + Expo SDK 54.
 - **State Management:** Zustand (برای پایداری و سرعت بالای دسترسی به داده‌ها).
 - **Communication:** apiService (ارتباط مستقیم با Cloudflare Worker).
-- **Testing:** testService (اجرای تست‌های غیرمسدودکننده در دسته‌های ۱۰ تایی).
+- **Testing:** testService (اجرای تست‌های غیرمسدودکننده در لایه کلاینت).
 - **Parsing:** parser.ts (پشتیبانی کامل از VLESS, VMess, Trojan, Shadowsocks).
 
 ### بک‌اِند (Cloudflare Worker):
 - **Storage:** KV Storage برای نگهداری هزاران کانفیگ رتبه‌بندی شده.
 - **Endpoints:**
   - `/api/configs`: دریافت کانفیگ‌های عمومی.
-  - `/api/user-sub`: دریافت دیتای اختصاصی کاربر.
-  - `/dashboard/api/vote`: سیستم ثبت امتیاز برای بهبود کیفیت کلی.
+  - `/api/user-sub`: دریافت دیتای اختصاصی کاربر (حجم، زمان، کانفیگ).
+  - `/dashboard/api/vote`: سیستم ثبت امتیاز جهت بهبود کیفیت.
 
 ---
 
@@ -40,37 +40,45 @@
 - اسکنر QR داخلی برای سهولت در افزودن اشتراک.
 
 ### ۳.۲ صفحه اتصال هوشمند (Smart Connect)
-- نمایش وضعیت ایمنی اتصال.
-- دکمه Power بزرگ با Glow Effect بر اساس وضعیت اتصال.
-- انتخاب خودکار بهترین سرور بر اساس کمترین پینگ تست شده توسط کلاینت.
+- نمایش وضعیت ایمنی اتصال مشابه Cloudflare WARP.
+- دکمه Power بزرگ با Glow Effect متحرک.
+- انتخاب خودکار بهترین سرور بر اساس کمترین پینگ واقعی کلاینت.
 
 ---
 
-## ۴. راهنمای توسعه و بیلد (Build Guide)
-
-### ۴.۱ پیش‌نیازها
-- نصب Node.js و Yarn.
-- تنظیم فایل `.env` در پوشه `frontend` شامل `EXPO_PUBLIC_WORKER_URL`.
-
-### ۴.۲ بیلد Native برای اتصال واقعی
-با توجه به استفاده از Native Modules برای اتصال واقعی، برنامه باید با استفاده از دستور زیر به صورت Development Build اجرا یا بیلد شود:
-```bash
-npx expo prebuild
-# سپس بیلد با Android Studio یا EAS Build
-```
+## ۴. راهنمای بیلد و CI/CD (GitHub Actions)
+این پروژه مجهز به سیستم بیلد خودکار است:
+- **فایل تنظیمات:** `.github/workflows/android-release.yml`
+- **نحوه عملکرد:** با هر بار Push کردن تگ جدید (مثلاً `v1.0.1`)، گیت‌هاب به صورت خودکار نسخه‌های اندروید را در تمامی معماری‌ها تولید کرده و در بخش **Releases** قرار می‌دهد.
 
 ---
 
-## ۵. ساختار پوشه‌بندی نهایی
+## ۵. جزئیات پیاده‌سازی کد
+
+### ۵.۱ منطق تست و پارس (سمت کلاینت)
+تمامی پردازش‌ها به اپلیکیشن منتقل شد:
+- `parser.ts`: استخراج اطلاعات از پروتکل‌ها و شناسایی هوشمند کانال‌های تلگرام.
+- `testService.ts`: اجرای تست‌های Real Delay برای یافتن سریع‌ترین مسیر.
+
+### ۵.۲ سرویس اتصال (V2RayService)
+رابط کاربری Bridge برای اتصال واقعی:
+- `V2RayService.ts`: کنترل اتصال با پشتیبانی از حالت توسعه (`__DEV__`).
+- **Native Modules:** کدهای کاتلین در پوشه `native_source` برای مدیریت هسته VPN در اندروید.
+
+---
+
+## ۶. ساختار پوشه‌بندی نهایی
 ```
 frontend/
 ├── app/
-│   ├── (tabs)/              # صفحات اصلی (Home, Configs, Subscription, Settings)
+│   ├── (tabs)/              # صفحات اصلی برنامه
 │   ├── constants/           # ثابت‌های رنگی و API
-│   ├── store/               # مدیریت حالت (useAppStore.ts)
-│   ├── services/            # سرویس‌های API و تست (apiService, testService)
-│   ├── utils/               # توابع پارسر و لینک‌ها
+│   ├── store/               # مدیریت حالت (Zustand)
+│   ├── services/            # سرویس‌های API، تست و VPN
+│   ├── utils/               # توابع کمکی و پارسر
 │   └── types/               # تعاریف TypeScript
+native_source/               # سورس‌کدهای Native اندروید (Kotlin)
+.github/workflows/           # تنظیمات بیلد خودکار
 ```
 
 ---

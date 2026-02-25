@@ -90,7 +90,7 @@ export default function DashboardScreen() {
       if (successResults.length > 0) {
         const best = successResults[0];
         const started = await V2RayService.start(best.raw!);
-        if (started || true) { // Fallback for simulation
+        if (started) {
           setBestConfig(best);
           setConnectionState('connected');
 

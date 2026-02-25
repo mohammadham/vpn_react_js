@@ -129,3 +129,29 @@ Web node_modules/expo-router/entry.js ░░░░░░░░░░░░░░
 Web Bundled 506ms node_modules/expo-router/entry.js (1 module)
 Web Bundled 54ms node_modules/expo-router/entry.js (1 module)
  LOG  [web] Logs will appear in the browser console
+λ  ERROR  Error: ENOENT: no such file or directory, open '/app/frontend/.expo/types/router.d.ts'
+    at Object.writeFileSync (node:fs:2437:20)
+    at /app/frontend/node_modules/expo-router/src/typed-routes/index.ts:90:10
+    at Timeout._onTimeout (/app/frontend/node_modules/expo-router/src/typed-routes/index.ts:109:7)
+    at listOnTimeout (node:internal/timers:588:17)
+    at processTimers (node:internal/timers:523:7) {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/app/frontend/.expo/types/router.d.ts'
+}
+  listOnTimeout (node:internal/timers:588:17)
+  processTimers (node:internal/timers:523:7)
+λ  ERROR  Error: ENOENT: no such file or directory, open '/app/frontend/.expo/types/router.d.ts'
+    at Object.writeFileSync (node:fs:2437:20)
+    at /app/frontend/node_modules/expo-router/src/typed-routes/index.ts:90:10
+    at Timeout._onTimeout (/app/frontend/node_modules/expo-router/src/typed-routes/index.ts:109:7)
+    at listOnTimeout (node:internal/timers:588:17)
+    at processTimers (node:internal/timers:523:7) {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/app/frontend/.expo/types/router.d.ts'
+}
+  listOnTimeout (node:internal/timers:588:17)
+  processTimers (node:internal/timers:523:7)

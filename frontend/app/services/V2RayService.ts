@@ -10,13 +10,20 @@ export const V2RayService = {
    * Starts the V2Ray VPN connection with the given config.
    */
   async start(config: string): Promise<boolean> {
+    if (__DEV__) {
+      console.log('Development Mode: Simulating V2Ray connection...');
+      return new Promise((resolve) => {
+        setTimeout(() => resolve(true), 1500);
+      });
+    }
+
     if (Platform.OS === 'ios') {
       console.warn('V2Ray is currently only supported on Android');
       return false;
     }
 
     if (!V2RayModule) {
-      console.warn('V2RayModule not found. Make sure native code is linked.');
+      console.warn('V2RayModule not found. Please build the production app to use VPN.');
       return false;
     }
 
