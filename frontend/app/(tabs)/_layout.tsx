@@ -1,14 +1,7 @@
 import { Tabs } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { StyleSheet } from 'react-native';
-
-const COLORS = {
-  bg: '#0B0F19',
-  card: '#151B2B',
-  primary: '#00FF94',
-  muted: '#6B7280',
-  border: '#2D3748',
-};
+import { COLORS } from '../constants/colors';
 
 export default function TabLayout() {
   return (
@@ -17,7 +10,7 @@ export default function TabLayout() {
         headerShown: false,
         tabBarStyle: styles.tabBar,
         tabBarActiveTintColor: COLORS.primary,
-        tabBarInactiveTintColor: COLORS.muted,
+        tabBarInactiveTintColor: COLORS.textMuted,
         tabBarLabelStyle: styles.tabLabel,
       }}
     >
@@ -36,6 +29,15 @@ export default function TabLayout() {
           title: 'کانفیگ‌ها',
           tabBarIcon: ({ color, size }) => (
             <MaterialCommunityIcons name="format-list-bulleted" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="subscription"
+        options={{
+          title: 'اشتراک',
+          tabBarIcon: ({ color, size }) => (
+            <MaterialCommunityIcons name="card-account-details-outline" size={size} color={color} />
           ),
         }}
       />
