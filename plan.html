@@ -1,0 +1,1424 @@
+
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>پلن اجرایی — V2Ray Config Manager</title>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #080c12;
+  --surface: #0f1520;
+  --surface2: #161f2e;
+  --border: #1e2d40;
+  --border2: #243348;
+  --accent: #00e87a;
+  --accent-dim: rgba(0,232,122,0.08);
+  --accent-glow: rgba(0,232,122,0.15);
+  --blue: #3d9bff;
+  --blue-dim: rgba(61,155,255,0.1);
+  --yellow: #f5a623;
+  --yellow-dim: rgba(245,166,35,0.1);
+  --red: #ff4d6d;
+  --red-dim: rgba(255,77,109,0.08);
+  --purple: #a78bfa;
+  --purple-dim: rgba(167,139,250,0.1);
+  --cyan: #22d3ee;
+  --text: #e2eaf4;
+  --text2: #8899aa;
+  --text3: #4a5e72;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Vazirmatn', sans-serif;
+  font-size: 14px;
+  line-height: 1.75;
+}
+
+/* ====== SIDEBAR ====== */
+.sidebar {
+  position: fixed;
+  top: 0; right: 0;
+  width: 270px; height: 100vh;
+  background: var(--surface);
+  border-left: 1px solid var(--border);
+  overflow-y: auto;
+  padding: 20px 14px;
+  z-index: 200;
+}
+.sidebar-logo {
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 8px 20px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 16px;
+}
+.sidebar-logo .dot {
+  width: 10px; height: 10px; border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 8px var(--accent);
+}
+.sidebar-logo span { font-size: 13px; font-weight: 700; color: var(--text); }
+.sidebar-section { margin-bottom: 20px; }
+.sidebar-section-title {
+  font-size: 10px; font-weight: 700; letter-spacing: 1.5px;
+  color: var(--text3); text-transform: uppercase;
+  padding: 0 8px; margin-bottom: 6px;
+}
+.sidebar a {
+  display: flex; align-items: center; gap: 8px;
+  color: var(--text2); text-decoration: none;
+  font-size: 12.5px; padding: 6px 8px; border-radius: 8px;
+  margin-bottom: 1px; transition: all 0.15s;
+}
+.sidebar a:hover, .sidebar a.active {
+  background: var(--accent-dim); color: var(--accent);
+}
+.sidebar a .num {
+  width: 18px; height: 18px; border-radius: 5px;
+  background: var(--surface2); font-size: 10px;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--text3); font-weight: 700; flex-shrink: 0;
+}
+
+/* ====== MAIN ====== */
+.main { margin-right: 270px; }
+
+/* ====== HERO ====== */
+.hero {
+  background: linear-gradient(160deg, #0a1020 0%, #0d1a2a 40%, #0a1520 100%);
+  border-bottom: 1px solid var(--border);
+  padding: 60px 60px 50px;
+  position: relative; overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute; top: -100px; left: -100px;
+  width: 400px; height: 400px;
+  background: radial-gradient(circle, rgba(0,232,122,0.06) 0%, transparent 70%);
+  pointer-events: none;
+}
+.hero-tag {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: var(--accent-dim); border: 1px solid rgba(0,232,122,0.2);
+  padding: 4px 12px; border-radius: 20px;
+  font-size: 11px; font-weight: 700; color: var(--accent);
+  letter-spacing: 0.5px; margin-bottom: 20px;
+}
+.hero h1 {
+  font-size: 36px; font-weight: 900; color: var(--text);
+  line-height: 1.3; margin-bottom: 12px;
+}
+.hero h1 span { color: var(--accent); }
+.hero p { font-size: 15px; color: var(--text2); max-width: 640px; line-height: 1.8; }
+.meta-row {
+  display: flex; gap: 24px; margin-top: 28px; flex-wrap: wrap;
+}
+.meta-item { display: flex; align-items: center; gap: 6px; }
+.meta-item .label { font-size: 11px; color: var(--text3); }
+.meta-item .value {
+  font-size: 12px; font-weight: 700;
+  background: var(--surface2); border: 1px solid var(--border);
+  padding: 3px 10px; border-radius: 6px; color: var(--text);
+}
+
+/* ====== CONTENT ====== */
+.content { padding: 0 60px 80px; }
+
+/* ====== SECTION ====== */
+.section { margin-top: 60px; }
+.section-header {
+  display: flex; align-items: center; gap: 14px;
+  margin-bottom: 28px; padding-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+}
+.section-icon {
+  width: 40px; height: 40px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; flex-shrink: 0;
+}
+.icon-green { background: var(--accent-dim); }
+.icon-blue { background: var(--blue-dim); }
+.icon-yellow { background: var(--yellow-dim); }
+.icon-red { background: var(--red-dim); }
+.icon-purple { background: var(--purple-dim); }
+.section-header h2 { font-size: 22px; font-weight: 800; color: var(--text); }
+.section-header .desc { font-size: 13px; color: var(--text2); margin-top: 2px; }
+
+/* ====== PHASE CARDS ====== */
+.phases { display: flex; flex-direction: column; gap: 20px; }
+.phase-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px; overflow: hidden;
+  transition: border-color 0.2s;
+}
+.phase-card:hover { border-color: var(--border2); }
+.phase-header {
+  display: flex; align-items: center; gap: 14px;
+  padding: 18px 22px;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+}
+.phase-num-badge {
+  width: 36px; height: 36px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 800; flex-shrink: 0;
+}
+.badge-green { background: var(--accent-dim); color: var(--accent); border: 1px solid rgba(0,232,122,0.2); }
+.badge-blue { background: var(--blue-dim); color: var(--blue); border: 1px solid rgba(61,155,255,0.2); }
+.badge-yellow { background: var(--yellow-dim); color: var(--yellow); border: 1px solid rgba(245,166,35,0.2); }
+.badge-purple { background: var(--purple-dim); color: var(--purple); border: 1px solid rgba(167,139,250,0.2); }
+.badge-red { background: var(--red-dim); color: var(--red); border: 1px solid rgba(255,77,109,0.2); }
+.badge-cyan { background: rgba(34,211,238,0.1); color: var(--cyan); border: 1px solid rgba(34,211,238,0.2); }
+.phase-title-group { flex: 1; }
+.phase-title { font-size: 16px; font-weight: 700; color: var(--text); }
+.phase-subtitle { font-size: 12px; color: var(--text2); margin-top: 2px; }
+.phase-meta { display: flex; gap: 8px; align-items: center; }
+.phase-tag {
+  font-size: 11px; font-weight: 600;
+  padding: 3px 10px; border-radius: 6px;
+  white-space: nowrap;
+}
+.phase-body { padding: 22px; }
+
+/* ====== STEPS ====== */
+.steps { display: flex; flex-direction: column; gap: 14px; }
+.step {
+  display: grid; grid-template-columns: 28px 1fr;
+  gap: 12px; align-items: start;
+}
+.step-dot {
+  width: 28px; height: 28px; border-radius: 50%;
+  border: 2px solid var(--border2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700; color: var(--text3);
+  flex-shrink: 0; margin-top: 1px;
+}
+.step-content {}
+.step-title { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+.step-desc { font-size: 13px; color: var(--text2); line-height: 1.65; }
+.step-code {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 8px; padding: 12px 14px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11.5px; color: var(--text2);
+  margin-top: 8px; direction: ltr; text-align: left;
+  overflow-x: auto; line-height: 1.7;
+}
+.step-code .kw { color: var(--purple); }
+.step-code .fn { color: var(--blue); }
+.step-code .str { color: var(--accent); }
+.step-code .cm { color: var(--text3); }
+.step-code .num { color: var(--yellow); }
+.step-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
+.step-tag {
+  font-size: 10.5px; font-weight: 600;
+  padding: 2px 8px; border-radius: 4px;
+}
+
+/* ====== SCREEN WIREFRAMES ====== */
+.screens-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: 16px; margin: 20px 0;
+}
+.screen-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px; overflow: hidden;
+}
+.screen-top {
+  height: 8px;
+  display: flex; gap: 4px; padding: 0 10px;
+  align-items: center; background: var(--surface2);
+}
+.screen-dot { width: 6px; height: 6px; border-radius: 50%; }
+.screen-body { padding: 14px; }
+.screen-title { font-size: 12px; font-weight: 700; color: var(--text); margin-bottom: 8px; text-align: center; }
+.screen-mockup {
+  background: #0a0f18;
+  border-radius: 8px; padding: 10px;
+  min-height: 120px; font-size: 10px;
+  color: var(--text3); text-align: center;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: flex-start;
+  gap: 4px;
+}
+.mock-header { width: 100%; background: var(--surface2); border-radius: 4px; padding: 4px 6px; text-align: right; color: var(--text2); font-size: 9px; }
+.mock-btn { width: 44px; height: 44px; border-radius: 50%; border: 2px solid var(--accent); margin: 6px auto; display: flex; align-items: center; justify-content: center; }
+.mock-btn .inner { width: 30px; height: 30px; border-radius: 50%; background: var(--accent-dim); }
+.mock-row { width: 100%; background: var(--surface2); border-radius: 4px; padding: 4px 6px; margin-bottom: 3px; text-align: right; color: var(--text3); font-size: 9px; }
+.mock-selector { width: 100%; background: var(--surface2); border: 1px solid var(--border2); border-radius: 4px; padding: 5px 6px; text-align: right; color: var(--accent); font-size: 9px; font-weight: 600; margin-bottom: 4px; }
+.mock-tab-row { display: flex; gap: 2px; width: 100%; margin-bottom: 6px; }
+.mock-tab { flex: 1; background: var(--surface2); border-radius: 3px; padding: 3px 2px; text-align: center; color: var(--text3); font-size: 8px; }
+.mock-tab.active { background: var(--accent-dim); color: var(--accent); }
+
+/* ====== FLOW DIAGRAM ====== */
+.flow {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px; padding: 28px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px; direction: ltr; text-align: left;
+  overflow-x: auto; line-height: 1.8;
+}
+.flow .grn { color: var(--accent); }
+.flow .blu { color: var(--blue); }
+.flow .ylw { color: var(--yellow); }
+.flow .red { color: var(--red); }
+.flow .prp { color: var(--purple); }
+.flow .dim { color: var(--text3); }
+
+/* ====== API TABLE ====== */
+.api-table { width: 100%; border-collapse: collapse; margin: 16px 0; }
+.api-table th {
+  background: var(--surface2);
+  text-align: right; padding: 10px 14px;
+  font-size: 11px; font-weight: 700;
+  color: var(--text3); letter-spacing: 0.5px;
+  text-transform: uppercase; border-bottom: 2px solid var(--border);
+}
+.api-table td {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px; vertical-align: top;
+}
+.api-table tr:hover td { background: rgba(255,255,255,0.01); }
+.method {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px; font-weight: 700;
+  padding: 2px 7px; border-radius: 4px;
+}
+.get { background: rgba(0,232,122,0.15); color: var(--accent); }
+.post { background: rgba(61,155,255,0.15); color: var(--blue); }
+.endpoint {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px; color: var(--purple);
+}
+.status-pill {
+  font-size: 10px; font-weight: 700;
+  padding: 2px 8px; border-radius: 10px;
+}
+.s-new { background: var(--accent-dim); color: var(--accent); }
+.s-exists { background: var(--blue-dim); color: var(--blue); }
+.s-extend { background: var(--yellow-dim); color: var(--yellow); }
+
+/* ====== CONNECTION LOGIC ====== */
+.logic-cards { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin: 16px 0; }
+.logic-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 12px; padding: 18px;
+}
+.logic-card-head { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+.logic-icon { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+.logic-card h4 { font-size: 14px; font-weight: 700; color: var(--text); }
+.logic-card ol { padding-right: 16px; }
+.logic-card li { font-size: 12px; color: var(--text2); margin-bottom: 4px; }
+
+/* ====== STATE MACHINE ====== */
+.states { display: flex; flex-wrap: wrap; gap: 10px; margin: 16px 0; }
+.state-box {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 10px; padding: 12px 16px;
+  min-width: 120px;
+}
+.state-name { font-size: 11px; font-weight: 700; margin-bottom: 4px; }
+.state-desc { font-size: 11px; color: var(--text2); }
+
+/* ====== PERF CARDS ====== */
+.perf-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 16px 0; }
+.perf-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 12px; padding: 18px;
+}
+.perf-card h4 { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+.perf-item { font-size: 12px; color: var(--text2); padding: 4px 0; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; }
+.perf-item:last-child { border: none; }
+.perf-val { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--accent); }
+
+/* ====== TIMELINE ====== */
+.timeline { position: relative; padding-right: 20px; }
+.timeline::before {
+  content: '';
+  position: absolute; right: 7px; top: 10px; bottom: 10px;
+  width: 2px; background: var(--border2);
+}
+.tl-item { display: flex; gap: 16px; margin-bottom: 24px; align-items: flex-start; position: relative; }
+.tl-dot {
+  width: 16px; height: 16px; border-radius: 50%; flex-shrink: 0;
+  margin-top: 4px; border: 2px solid var(--bg); z-index: 1;
+}
+.tl-content { flex: 1; }
+.tl-phase { font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 3px; }
+.tl-title { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+.tl-items { font-size: 12px; color: var(--text2); }
+.tl-items li { list-style: none; padding-right: 14px; position: relative; margin-bottom: 2px; }
+.tl-items li::before { content: '▸'; position: absolute; right: 0; color: var(--text3); font-size: 9px; top: 2px; }
+.tl-time {
+  font-size: 11px; font-weight: 700; white-space: nowrap;
+  background: var(--surface2); border: 1px solid var(--border);
+  padding: 2px 8px; border-radius: 6px; margin-top: 6px;
+  display: inline-block;
+}
+
+/* ====== MISC ====== */
+hr { border: none; border-top: 1px solid var(--border); margin: 40px 0; }
+code {
+  font-family: 'JetBrains Mono', monospace;
+  background: var(--surface2); border: 1px solid var(--border);
+  padding: 1px 6px; border-radius: 4px; font-size: 11.5px; color: var(--purple);
+  direction: ltr; display: inline-block;
+}
+strong { color: var(--text); }
+ul.checks { list-style: none; }
+ul.checks li { padding-right: 20px; position: relative; font-size: 13px; color: var(--text2); margin-bottom: 5px; }
+ul.checks li::before { content: '✓'; position: absolute; right: 0; color: var(--accent); font-weight: 700; }
+</style>
+</head>
+<body>
+
+<nav class="sidebar">
+  <div class="sidebar-logo"><div class="dot"></div><span>V2Ray Config Manager</span></div>
+  <div class="sidebar-section">
+    <div class="sidebar-section-title">معماری</div>
+    <a href="#screens"><span class="num">A</span>صفحات و UI</a>
+    <a href="#flow"><span class="num">B</span>منطق اتصال</a>
+    <a href="#states"><span class="num">C</span>State Machine</a>
+    <a href="#api"><span class="num">D</span>API Endpoints</a>
+  </div>
+  <div class="sidebar-section">
+    <div class="sidebar-section-title">فازهای اجرا</div>
+    <a href="#phase1"><span class="num">1</span>زیرساخت پایه</a>
+    <a href="#phase2"><span class="num">2</span>صفحه اصلی + اتصال</a>
+    <a href="#phase3"><span class="num">3</span>سیستم Vote</a>
+    <a href="#phase4"><span class="num">4</span>تنظیمات + اشتراک</a>
+    <a href="#phase5"><span class="num">5</span>اعلان + آپدیت</a>
+    <a href="#phase6"><span class="num">6</span>بهینه‌سازی</a>
+  </div>
+  <div class="sidebar-section">
+    <div class="sidebar-section-title">جزئیات</div>
+    <a href="#perf">عملکرد</a>
+    <a href="#timeline">تایم‌لاین</a>
+  </div>
+</nav>
+
+<div class="main">
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-tag">
+    <div style="width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 6px var(--accent)"></div>
+    پلن اجرایی گام‌به‌گام
+  </div>
+  <h1>V2Ray Config Manager<br><span>نقشه تکمیل کامل</span></h1>
+  <p>پیاده‌سازی دقیق و حرفه‌ای با عملکرد بهینه — شامل معماری، منطق اتصال، یکپارچه‌سازی با Bot Pro و تمام جزئیات فنی</p>
+  <div class="meta-row">
+    <div class="meta-item"><span class="label">فریم‌ورک</span><span class="value">Expo SDK 54 + React Native</span></div>
+    <div class="meta-item"><span class="label">زبان</span><span class="value">TypeScript</span></div>
+    <div class="meta-item"><span class="label">فازها</span><span class="value">۶ فاز</span></div>
+    <div class="meta-item"><span class="label">زمان کل</span><span class="value">~۸ روز کاری</span></div>
+  </div>
+</div>
+
+<div class="content">
+
+<!-- ====== SCREENS ====== -->
+<div class="section" id="screens">
+  <div class="section-header">
+    <div class="section-icon icon-blue">📱</div>
+    <div>
+      <h2>A — معماری صفحات (4 تب)</h2>
+      <div class="desc">طراحی کامل رابط کاربری — هر صفحه با کامپوننت‌ها و state‌های مشخص</div>
+    </div>
+  </div>
+
+  <div class="screens-grid">
+    <!-- Tab 1 -->
+    <div class="screen-card">
+      <div class="screen-top">
+        <div class="screen-dot" style="background:#ff4d6d"></div>
+        <div class="screen-dot" style="background:#f5a623"></div>
+        <div class="screen-dot" style="background:#00e87a"></div>
+      </div>
+      <div class="screen-body">
+        <div class="screen-title">تب ۱ — اتصال (Home)</div>
+        <div class="screen-mockup">
+          <div class="mock-header">🔴 قطع | V2Ray Manager</div>
+          <div class="mock-selector">🌍 انتخاب کشور ▾</div>
+          <div class="mock-selector">📡 اپراتور ▾</div>
+          <div class="mock-tab-row">
+            <div class="mock-tab active">بهترین</div>
+            <div class="mock-tab">برنامه</div>
+            <div class="mock-tab">اتوماتیک</div>
+          </div>
+          <div class="mock-btn"><div class="inner"></div></div>
+          <div style="font-size:8px;color:#4a5e72">برای اتصال لمس کنید</div>
+          <div class="mock-row" style="margin-top:4px">📢 کانال: @channel_name</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab 2 -->
+    <div class="screen-card">
+      <div class="screen-top">
+        <div class="screen-dot" style="background:#ff4d6d"></div>
+        <div class="screen-dot" style="background:#f5a623"></div>
+        <div class="screen-dot" style="background:#00e87a"></div>
+      </div>
+      <div class="screen-body">
+        <div class="screen-title">تب ۲ — کانفیگ‌ها</div>
+        <div class="screen-mockup">
+          <div class="mock-header">کانفیگ‌های تست‌شده (۴۲)</div>
+          <div class="mock-tab-row">
+            <div class="mock-tab active">همه</div>
+            <div class="mock-tab">🇩🇪</div>
+            <div class="mock-tab">🇳🇱</div>
+            <div class="mock-tab">🇺🇸</div>
+          </div>
+          <div class="mock-row">🟢 VLESS · DE · 120ms ⧉</div>
+          <div class="mock-row">🟡 VMess · NL · 380ms ⧉</div>
+          <div class="mock-row">🔴 Trojan · US · timeout ⧉</div>
+          <div style="color:var(--text3);font-size:8px;margin-top:4px">⧉ کپی کانفیگ</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab 3 -->
+    <div class="screen-card">
+      <div class="screen-top">
+        <div class="screen-dot" style="background:#ff4d6d"></div>
+        <div class="screen-dot" style="background:#f5a623"></div>
+        <div class="screen-dot" style="background:#00e87a"></div>
+      </div>
+      <div class="screen-body">
+        <div class="screen-title">تب ۳ — اشتراک</div>
+        <div class="screen-mockup">
+          <div class="mock-header">مدیریت اشتراک</div>
+          <div class="mock-row" style="color:var(--accent)">✅ عمومی (Bot Pro)</div>
+          <div class="mock-row">🔑 کد اشتراک: ABC-123</div>
+          <div class="mock-row">📷 اسکن QR Code</div>
+          <div class="mock-row">+ افزودن اشتراک جدید</div>
+          <div style="font-size:8px;color:var(--text3);margin-top:6px">
+            مصرف: ۲.۴ GB / ۱۰ GB<br>
+            انقضا: ۱۵ روز دیگر
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab 4 -->
+    <div class="screen-card">
+      <div class="screen-top">
+        <div class="screen-dot" style="background:#ff4d6d"></div>
+        <div class="screen-dot" style="background:#f5a623"></div>
+        <div class="screen-dot" style="background:#00e87a"></div>
+      </div>
+      <div class="screen-body">
+        <div class="screen-title">تب ۴ — تنظیمات</div>
+        <div class="screen-mockup">
+          <div class="mock-header">تنظیمات</div>
+          <div class="mock-row">🔗 سرور پشتیبان</div>
+          <div class="mock-row">📊 آمار و گزارش</div>
+          <div class="mock-row">🔔 اعلانات</div>
+          <div class="mock-row">🛡️ DNS پیش‌فرض</div>
+          <div class="mock-row">🌐 زبان رابط</div>
+          <div class="mock-row">📦 درباره / آپدیت</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ====== FLOW ====== -->
+<div class="section" id="flow">
+  <div class="section-header">
+    <div class="section-icon icon-green">⚡</div>
+    <div>
+      <h2>B — منطق اتصال (Connection Flow)</h2>
+      <div class="desc">فلوچارت دقیق از لحظه کلیک تا اتصال نهایی</div>
+    </div>
+  </div>
+
+  <div class="flow">
+<span class="grn">USER TAPS CONNECT</span>
+        │
+        ▼
+<span class="blu">[1] READ SELECTIONS</span>
+    ├── country  = AsyncStorage.get('selectedCountry')  <span class="dim">// e.g. "DE"</span>
+    ├── operator = AsyncStorage.get('selectedOperator') <span class="dim">// e.g. "MCI", "MTN"</span>
+    ├── mode     = AsyncStorage.get('connectionMode')   <span class="dim">// "best"|"app"|"auto"</span>
+    └── subType  = AsyncStorage.get('subscriptionType') <span class="dim">// "public"|"private"</span>
+        │
+        ▼
+<span class="blu">[2] FETCH CONFIG LIST</span>
+    IF subType === "private":
+        GET /api/user-sub?code={code}  →  Base64 decode  →  parseConfigs()
+    ELSE:
+        GET /api/configs?country={CC}&sort=best&limit=100  →  array of raw strings
+        GET /api/sub?country={CC}&limit=100                 <span class="dim">// fallback</span>
+        │
+        ▼
+<span class="blu">[3] PARSE & FILTER</span>
+    forEach(rawConfig):
+        parsed = parseConfig(raw)  <span class="dim">// vless/vmess/ss/trojan</span>
+        if operator selected:
+            skip if parsed.port not in OPERATOR_PORTS[operator]
+    configArray = parsed.sort(by: quality_score DESC)
+        │
+        ▼
+<span class="blu">[4] BATCH TCP TEST</span> <span class="dim">(batches of 30, concurrency=15)</span>
+    while(!found && batchIndex &lt; totalBatches):
+        batch = configArray.slice(i*30, (i+1)*30)
+        results = await Promise.allSettled(batch.map(testTCP))
+        passedConfigs = results.filter(r => r.success)
+        │
+        ├── IF passedConfigs.length > 0:
+        │       dispatchVotes(passedConfigs)  <span class="dim">// POST /api/vote batch</span>
+        │       selectedConfig = selectByMode(passedConfigs, mode)
+        │       └── "best"  → sort by latency_ms ASC → pick [0]
+        │       └── "app"   → sort by quality_score DESC → pick [0]
+        │       └── "auto"  → weighted: 0.6*latency + 0.4*quality → pick [0]
+        │
+        ▼
+<span class="grn">[5] CONNECTION ESTABLISHED</span>
+    setConnectionState('connected')
+    setBestConfig(selectedConfig)
+    saveToStorage(selectedConfig)
+    showChannelInfo(selectedConfig.telegram_channel)
+    │
+    └──▶ POST /api/user-sub/report (if private sub)
+         body: { code, volumeMB: 0, activate: true }
+  </div>
+
+  <!-- Mode Cards -->
+  <div class="logic-cards" style="margin-top:20px">
+    <div class="logic-card">
+      <div class="logic-card-head">
+        <div class="logic-icon badge-green">🏆</div>
+        <h4>حالت «بهترین»</h4>
+      </div>
+      <ol>
+        <li>دریافت تمام کانفیگ‌های کشور انتخابی</li>
+        <li>تست TCP همه در دسته‌های ۳۰ تایی</li>
+        <li>مرتب‌سازی بر اساس <code>latency_ms</code> صعودی</li>
+        <li>اتصال به کمترین latency</li>
+        <li>ارسال like برای همه موفق‌ها</li>
+      </ol>
+    </div>
+    <div class="logic-card">
+      <div class="logic-card-head">
+        <div class="logic-icon badge-blue">📱</div>
+        <h4>حالت «برنامه»</h4>
+      </div>
+      <ol>
+        <li>دریافت کانفیگ‌های با <code>sort=best</code> از Bot Pro</li>
+        <li>اولویت‌دهی بر اساس <code>quality_score</code></li>
+        <li>تست TCP فقط top-50</li>
+        <li>اتصال به بالاترین quality موفق</li>
+        <li>سریع‌ترین حالت (کمترین تست)</li>
+      </ol>
+    </div>
+    <div class="logic-card">
+      <div class="logic-card-head">
+        <div class="logic-icon badge-yellow">⚙️</div>
+        <h4>حالت «اتوماتیک»</h4>
+      </div>
+      <ol>
+        <li>دریافت کانفیگ‌های کشور با limit=100</li>
+        <li>تست TCP همه</li>
+        <li>محاسبه امتیاز ترکیبی:</li>
+        <li><code>score = 0.6/latency + 0.4*quality</code></li>
+        <li>اتصال به بالاترین امتیاز</li>
+      </ol>
+    </div>
+  </div>
+</div>
+
+<!-- ====== STATES ====== -->
+<div class="section" id="states">
+  <div class="section-header">
+    <div class="section-icon icon-purple">🔄</div>
+    <div>
+      <h2>C — State Machine کامل</h2>
+      <div class="desc">تمام حالات ممکن اپ و transition های بین آن‌ها</div>
+    </div>
+  </div>
+  <div class="states">
+    <div class="state-box">
+      <div class="state-name" style="color:var(--red)">● DISCONNECTED</div>
+      <div class="state-desc">دکمه قرمز<br>انتخاب کشور فعال</div>
+    </div>
+    <div class="state-box">
+      <div class="state-name" style="color:var(--yellow)">● FETCHING</div>
+      <div class="state-desc">دریافت لیست کانفیگ<br>Spinner + نام کشور</div>
+    </div>
+    <div class="state-box">
+      <div class="state-name" style="color:var(--yellow)">● TESTING [name]</div>
+      <div class="state-desc">"در حال تست [نام کانفیگ]"<br>Progress bar + batch info</div>
+    </div>
+    <div class="state-box">
+      <div class="state-name" style="color:var(--accent)">● CONNECTED</div>
+      <div class="state-desc">دکمه سبز + glow<br>نام کانال تلگرام</div>
+    </div>
+    <div class="state-box">
+      <div class="state-name" style="color:var(--red)">● ERROR</div>
+      <div class="state-desc">پیام خطای فارسی<br>دکمه تلاش مجدد</div>
+    </div>
+    <div class="state-box">
+      <div class="state-name" style="color:var(--purple)">● NO_CONFIG</div>
+      <div class="state-desc">هیچ کانفیگ فعالی نیست<br>پیشنهاد تغییر کشور</div>
+    </div>
+  </div>
+
+  <div class="step-code" style="margin-top:16px">
+<span class="kw">type</span> <span class="fn">ConnectionState</span> =
+  | <span class="str">'disconnected'</span>
+  | <span class="str">'fetching'</span>                        <span class="cm">// downloading config list</span>
+  | { type: <span class="str">'testing'</span>; configName: <span class="kw">string</span>; current: <span class="kw">number</span>; total: <span class="kw">number</span> }
+  | <span class="str">'connected'</span>
+  | { type: <span class="str">'error'</span>; message: <span class="kw">string</span> }
+  | <span class="str">'no_config'</span>
+
+<span class="cm">// در هنگام تست نمایش دهید:</span>
+<span class="str">"در حال تست {configName} — {current}/{total}"</span>
+  </div>
+</div>
+
+<!-- ====== API ====== -->
+<div class="section" id="api">
+  <div class="section-header">
+    <div class="section-icon icon-yellow">🔌</div>
+    <div>
+      <h2>D — API Endpoints کامل</h2>
+      <div class="desc">تمام endpoint های مورد نیاز بین اپ، FastAPI و Cloudflare Worker</div>
+    </div>
+  </div>
+  <table class="api-table">
+    <tr>
+      <th>Method</th><th>Endpoint (FastAPI)</th><th>عملکرد</th><th>منبع</th><th>وضعیت</th>
+    </tr>
+    <tr>
+      <td><span class="method get">GET</span></td>
+      <td><span class="endpoint">/api/countries</span></td>
+      <td>لیست کشورها با تعداد کانفیگ</td>
+      <td>→ Worker /api/countries</td>
+      <td><span class="status-pill s-new">جدید</span></td>
+    </tr>
+    <tr>
+      <td><span class="method get">GET</span></td>
+      <td><span class="endpoint">/api/configs</span></td>
+      <td>کانفیگ‌های raw با فیلتر country/sort</td>
+      <td>→ Worker /api/configs</td>
+      <td><span class="status-pill s-new">جدید</span></td>
+    </tr>
+    <tr>
+      <td><span class="method get">GET</span></td>
+      <td><span class="endpoint">/api/sub</span></td>
+      <td>اشتراک Base64 encoded</td>
+      <td>→ Worker /api/sub</td>
+      <td><span class="status-pill s-new">جدید</span></td>
+    </tr>
+    <tr>
+      <td><span class="method post">POST</span></td>
+      <td><span class="endpoint">/api/configs/test-batch</span></td>
+      <td>تست TCP دسته‌ای</td>
+      <td>داخلی MongoDB</td>
+      <td><span class="status-pill s-exists">موجود</span></td>
+    </tr>
+    <tr>
+      <td><span class="method post">POST</span></td>
+      <td><span class="endpoint">/api/vote</span></td>
+      <td>ارسال batch vote به Worker</td>
+      <td>→ Worker /dashboard/api/vote</td>
+      <td><span class="status-pill s-new">جدید</span></td>
+    </tr>
+    <tr>
+      <td><span class="method get">GET</span></td>
+      <td><span class="endpoint">/api/user-sub</span></td>
+      <td>کانفیگ اشتراک شخصی با کد</td>
+      <td>→ Worker /api/user-sub</td>
+      <td><span class="status-pill s-new">جدید</span></td>
+    </tr>
+    <tr>
+      <td><span class="method post">POST</span></td>
+      <td><span class="endpoint">/api/user-sub/report</span></td>
+      <td>گزارش مصرف حجم</td>
+      <td>→ Worker /api/user-sub/report</td>
+      <td><span class="status-pill s-new">جدید</span></td>
+    </tr>
+    <tr>
+      <td><span class="method get">GET</span></td>
+      <td><span class="endpoint">/api/app-update</span></td>
+      <td>اطلاعات آپدیت اپ</td>
+      <td>→ Worker /api/app-update</td>
+      <td><span class="status-pill s-new">جدید</span></td>
+    </tr>
+    <tr>
+      <td><span class="method get">GET</span></td>
+      <td><span class="endpoint">/api/announcements</span></td>
+      <td>اعلانات فعال</td>
+      <td>→ Worker /api/announcements</td>
+      <td><span class="status-pill s-new">جدید</span></td>
+    </tr>
+    <tr>
+      <td><span class="method get">GET</span></td>
+      <td><span class="endpoint">/api/configs/results</span></td>
+      <td>نتایج تست محلی</td>
+      <td>MongoDB</td>
+      <td><span class="status-pill s-exists">موجود</span></td>
+    </tr>
+    <tr>
+      <td><span class="method post">POST</span></td>
+      <td><span class="endpoint">/api/configs/fetch</span></td>
+      <td>دریافت و parse از URL</td>
+      <td>داخلی</td>
+      <td><span class="status-pill s-extend">بسط</span></td>
+    </tr>
+  </table>
+</div>
+
+<hr>
+
+<!-- ====== PHASE 1 ====== -->
+<div class="section phases" id="phase1">
+<div class="phase-card">
+  <div class="phase-header">
+    <div class="phase-num-badge badge-green">۱</div>
+    <div class="phase-title-group">
+      <div class="phase-title">زیرساخت پایه و معماری مشترک</div>
+      <div class="phase-subtitle">constants، utils، hooks، environment variables</div>
+    </div>
+    <div class="phase-meta">
+      <span class="phase-tag badge-green">فاز اول</span>
+      <span class="phase-tag" style="background:var(--surface2);color:var(--text2)">۱ روز</span>
+    </div>
+  </div>
+  <div class="phase-body">
+    <div class="steps">
+      <div class="step">
+        <div class="step-dot">۱</div>
+        <div class="step-content">
+          <div class="step-title">ایجاد فایل‌های مشترک</div>
+          <div class="step-desc">استخراج COLORS، API_BASE، و helper functions از 3 فایل تکراری به فایل‌های مشترک:</div>
+          <div class="step-code">
+<span class="cm">// frontend/app/constants/colors.ts</span>
+<span class="kw">export const</span> <span class="fn">COLORS</span> = { bg: <span class="str">'#0B0F19'</span>, accent: <span class="str">'#00FF94'</span>, ... }
+
+<span class="cm">// frontend/app/constants/api.ts</span>
+<span class="kw">export const</span> <span class="fn">API_BASE</span> = process.env.<span class="fn">EXPO_PUBLIC_BACKEND_URL</span>
+<span class="kw">export const</span> <span class="fn">WORKER_URL</span> = process.env.<span class="fn">EXPO_PUBLIC_WORKER_URL</span>
+
+<span class="cm">// frontend/app/utils/telegram.ts</span>
+<span class="kw">export const</span> <span class="fn">openTelegramChannel</span> = (channel: <span class="kw">string</span>) => ...
+
+<span class="cm">// frontend/app/utils/config.ts</span>
+<span class="kw">export const</span> <span class="fn">parseRawConfigs</span> = (base64: <span class="kw">string</span>) => ...
+<span class="kw">export const</span> <span class="fn">selectByMode</span> = (configs, mode) => ...</div>
+          <div class="step-tags">
+            <span class="step-tag badge-green">Refactor</span>
+            <span class="step-tag badge-blue">TypeScript</span>
+          </div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-dot">۲</div>
+        <div class="step-content">
+          <div class="step-title">تعریف Types و Interfaces مرکزی</div>
+          <div class="step-desc">تمام type های مورد استفاده در <code>frontend/app/types/index.ts</code></div>
+          <div class="step-code">
+<span class="kw">export interface</span> <span class="fn">ParsedConfig</span> {
+  raw: <span class="kw">string</span>;  protocol: <span class="kw">string</span>;  server: <span class="kw">string</span>;
+  port: <span class="kw">number</span>;  name: <span class="kw">string</span>;  country: <span class="kw">string</span>;
+  countryCode: <span class="kw">string</span>;  telegram_channel?: <span class="kw">string</span>;
+  quality_score?: <span class="kw">number</span>;
+}
+<span class="kw">export interface</span> <span class="fn">TestResult</span> { config_id: <span class="kw">string</span>; success: <span class="kw">boolean</span>; latency_ms: <span class="kw">number</span>; }
+<span class="kw">export interface</span> <span class="fn">Country</span> { country: <span class="kw">string</span>; countryCode: <span class="kw">string</span>; count: <span class="kw">number</span>; flag: <span class="kw">string</span>; }
+<span class="kw">export interface</span> <span class="fn">Subscription</span> { type: <span class="str">'public'</span>|<span class="str">'private'</span>; code?: <span class="kw">string</span>; label: <span class="kw">string</span>; }
+<span class="kw">export type</span>    <span class="fn">ConnectionMode</span> = <span class="str">'best'</span> | <span class="str">'app'</span> | <span class="str">'auto'</span>
+<span class="kw">export type</span>    <span class="fn">ConnectionState</span> = <span class="str">'disconnected'</span> | <span class="str">'fetching'</span> | <span class="str">'testing'</span> | <span class="str">'connected'</span> | <span class="str">'error'</span></div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-dot">۳</div>
+        <div class="step-content">
+          <div class="step-title">اضافه کردن EXPO_PUBLIC_WORKER_URL به env</div>
+          <div class="step-desc">تنظیم آدرس Cloudflare Worker در <code>frontend/.env</code> و <code>backend/.env</code> برای پروکسی</div>
+          <div class="step-code">
+<span class="cm"># frontend/.env</span>
+EXPO_PUBLIC_BACKEND_URL=https://your-backend.com
+<span class="grn">EXPO_PUBLIC_WORKER_URL=https://your-worker.workers.dev</span>
+
+<span class="cm"># backend/.env</span>
+MONGO_URL=mongodb://...
+DB_NAME=vpn_configs
+<span class="grn">WORKER_URL=https://your-worker.workers.dev</span>
+<span class="grn">WORKER_TOKEN=your_dashboard_jwt_token</span></div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-dot">۴</div>
+        <div class="step-content">
+          <div class="step-title">ساخت useAppStore (Zustand یا Context)</div>
+          <div class="step-desc">Global state مدیریت‌شده برای اشتراک جلوگیری از prop drilling بین تب‌ها</div>
+          <div class="step-code">
+<span class="cm">// app/store/useAppStore.ts</span>
+<span class="kw">interface</span> <span class="fn">AppStore</span> {
+  connectionState: <span class="fn">ConnectionState</span>
+  selectedCountry: <span class="fn">Country</span> | <span class="kw">null</span>
+  selectedOperator: <span class="kw">string</span> | <span class="kw">null</span>
+  connectionMode:   <span class="fn">ConnectionMode</span>
+  activeSubscription: <span class="fn">Subscription</span>
+  bestConfig:   <span class="fn">ParsedConfig</span> | <span class="kw">null</span>
+  announcement: <span class="fn">Announcement</span> | <span class="kw">null</span>
+  <span class="cm">// actions</span>
+  setCountry, setOperator, setMode, connect, disconnect
+}</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-dot">۵</div>
+        <div class="step-content">
+          <div class="step-title">Backend: اضافه کردن endpoint های proxy</div>
+          <div class="step-desc">در <code>server.py</code> endpoint های جدید برای پروکسی کردن درخواست‌ها به Cloudflare Worker اضافه کنید تا CORS و auth مدیریت شوند</div>
+          <div class="step-code">
+<span class="kw">@api_router.get</span>(<span class="str">"/countries"</span>)
+<span class="kw">async def</span> <span class="fn">proxy_countries</span>():
+    worker_url = os.environ.get(<span class="str">'WORKER_URL'</span>)
+    <span class="kw">async with</span> httpx.<span class="fn">AsyncClient</span>(timeout=<span class="num">10.0</span>) <span class="kw">as</span> client:
+        resp = <span class="kw">await</span> client.<span class="fn">get</span>(f<span class="str">"{worker_url}/api/countries"</span>)
+        <span class="kw">return</span> resp.<span class="fn">json</span>()
+
+<span class="kw">@api_router.get</span>(<span class="str">"/configs/remote"</span>)
+<span class="kw">async def</span> <span class="fn">proxy_configs</span>(country: str = <span class="str">""</span>, sort: str = <span class="str">"best"</span>, limit: int = <span class="num">100</span>):
+    ...
+
+<span class="kw">@api_router.post</span>(<span class="str">"/vote"</span>)
+<span class="kw">async def</span> <span class="fn">proxy_vote</span>(votes: <span class="fn">list</span>):
+    <span class="cm"># forward to Worker with auth token</span>
+    ...</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ====== PHASE 2 ====== -->
+<div class="phase-card" id="phase2">
+  <div class="phase-header">
+    <div class="phase-num-badge badge-blue">۲</div>
+    <div class="phase-title-group">
+      <div class="phase-title">صفحه اصلی — Landing + اتصال</div>
+      <div class="phase-subtitle">Country Picker، Operator Selector، Mode Tabs، دکمه اتصال، نمایش کانال</div>
+    </div>
+    <div class="phase-meta">
+      <span class="phase-tag badge-blue">فاز دوم</span>
+      <span class="phase-tag" style="background:var(--surface2);color:var(--text2)">۲ روز</span>
+    </div>
+  </div>
+  <div class="phase-body">
+    <div class="steps">
+      <div class="step">
+        <div class="step-dot">۱</div>
+        <div class="step-content">
+          <div class="step-title">کامپوننت CountryPicker</div>
+          <div class="step-desc">Modal با لیست کشورها دریافتی از <code>/api/countries</code>، پرچم emoji، جستجوی real-time، cache در AsyncStorage</div>
+          <div class="step-code">
+<span class="cm">// app/components/CountryPicker.tsx</span>
+<span class="cm">// - Modal with FlatList</span>
+<span class="cm">// - SearchBar برای فیلتر کشور</span>
+<span class="cm">// - نمایش flag emoji + نام کشور + تعداد کانفیگ</span>
+<span class="cm">// - cache 30 دقیقه در AsyncStorage</span>
+countries.sort(<span class="fn">by</span>: count DESC)  <span class="cm">// پرکاربردترین اول</span></div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-dot">۲</div>
+        <div class="step-content">
+          <div class="step-title">کامپوننت OperatorSelector</div>
+          <div class="step-desc">لیست اپراتورهای ایران با پورت‌های مربوطه برای فیلتر کانفیگ:</div>
+          <div class="step-code">
+<span class="kw">const</span> IRAN_OPERATORS = {
+  <span class="str">'همراه اول (MCI)'</span>: { ports: [<span class="num">443</span>, <span class="num">80</span>, <span class="num">8080</span>], hint: <span class="str">'MCI'</span> },
+  <span class="str">'ایرانسل (MTN)'</span>:  { ports: [<span class="num">443</span>, <span class="num">80</span>, <span class="num">2083</span>], hint: <span class="str">'MTN'</span> },
+  <span class="str">'رایتل (Rightel)'</span>:{ ports: [<span class="num">443</span>, <span class="num">8443</span>],       hint: <span class="str">'RTL'</span> },
+  <span class="str">'ایرانتل'</span>:         { ports: [<span class="num">443</span>, <span class="num">80</span>],           hint: <span class="str">'IRNTL'</span> },
+  <span class="str">'شاتل'</span>:            { ports: [<span class="num">443</span>, <span class="num">80</span>, <span class="num">8080</span>],    hint: <span class="str">'SHT'</span> },
+  <span class="str">'همه اپراتورها'</span>:   { ports: <span class="kw">null</span>, hint: <span class="str">'ALL'</span> },  <span class="cm">// default</span>
+}</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-dot">۳</div>
+        <div class="step-content">
+          <div class="step-title">Mode Tabs (بهترین / برنامه / اتوماتیک)</div>
+          <div class="step-desc">سه تب SegmentedControl با tooltip توضیح هر حالت، ذخیره در AsyncStorage</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-dot">۴</div>
+        <div class="step-content">
+          <div class="step-title">بازنویسی منطق handleConnect</div>
+          <div class="step-desc">پیاده‌سازی کامل flow اتصال بر اساس دیاگرام B، با نمایش نام کانفیگ در حال تست:</div>
+          <div class="step-code">
+<span class="cm">// هنگام تست هر کانفیگ:</span>
+setConnectionState({
+  type: <span class="str">'testing'</span>,
+  configName: parsed.<span class="fn">name</span> || parsed.<span class="fn">server</span>,
+  current: batchIndex * <span class="num">30</span> + configIndex,
+  total: allConfigs.<span class="fn">length</span>
+})
+<span class="cm">// → نمایش: "در حال تست cdn.cloudflare.com — ۱۵/۱۰۰"</span>
+
+<span class="cm">// انتخاب بر اساس حالت:</span>
+<span class="kw">const</span> <span class="fn">selectByMode</span> = (passed: TestResult[], mode: ConnectionMode) => {
+  <span class="kw">if</span> (mode === <span class="str">'best'</span>) <span class="kw">return</span> passed.<span class="fn">sort</span>((a,b) => a.latency_ms - b.latency_ms)[<span class="num">0</span>]
+  <span class="kw">if</span> (mode === <span class="str">'app'</span>)  <span class="kw">return</span> passed.<span class="fn">sort</span>((a,b) => b.quality_score - a.quality_score)[<span class="num">0</span>]
+  <span class="kw">if</span> (mode === <span class="str">'auto'</span>) <span class="kw">return</span> passed.<span class="fn">sort</span>((a,b) => (<span class="num">0.6</span>/a.latency_ms + <span class="num">0.4</span>*a.quality_score) - ...)[<span class="num">0</span>]
+}</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-dot">۵</div>
+        <div class="step-content">
+          <div class="step-title">نمایش کانال تلگرام پشتیبانی (حیاتی)</div>
+          <div class="step-desc">پس از اتصال، کارت کانال تلگرام با آیکون و نام نمایش داده شود. در هنگام تست نیز نمایش داده شود:</div>
+          <div class="step-code">
+<span class="cm">// Card اتصال — پس از connected:</span>
+&lt;<span class="fn">TouchableOpacity</span> onPress={() => <span class="fn">openTelegramChannel</span>(config.telegram_channel)}&gt;
+  &lt;<span class="fn">TelegramIcon</span> /&gt;
+  &lt;<span class="fn">Text</span>&gt;{config.telegram_channel}&lt;/<span class="fn">Text</span>&gt;  <span class="cm">// e.g. @vpnchannel</span>
+  &lt;<span class="fn">Text</span> style={hint}&gt;کانال پشتیبانی — کلیک کنید&lt;/<span class="fn">Text</span>&gt;
+&lt;/<span class="fn">TouchableOpacity</span>&gt;</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-dot">۶</div>
+        <div class="step-content">
+          <div class="step-title">بنر اعلانات در بالای صفحه</div>
+          <div class="step-desc">فراخوانی <code>/api/announcements</code> هنگام راه‌اندازی. نمایش بنر قابل بستن در بالای home:</div>
+          <div class="step-code">
+<span class="kw">if</span> (announcement?.active && !dismissed) {
+  <span class="cm">// show dismissable banner at top of screen</span>
+  &lt;<span class="fn">AnnouncementBanner</span> title={title} message={message} onClose={dismiss} /&gt;
+}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ====== PHASE 3 ====== -->
+<div class="phase-card" id="phase3">
+  <div class="phase-header">
+    <div class="phase-num-badge badge-yellow">۳</div>
+    <div class="phase-title-group">
+      <div class="phase-title">سیستم Vote و ارسال نتایج</div>
+      <div class="phase-subtitle">Auto-like، گزارش نتایج مثبت به Bot Pro</div>
+    </div>
+    <div class="phase-meta">
+      <span class="phase-tag badge-yellow">فاز سوم</span>
+      <span class="phase-tag" style="background:var(--surface2);color:var(--text2)">۱ روز</span>
+    </div>
+  </div>
+  <div class="phase-body">
+    <div class="steps">
+      <div class="step">
+        <div class="step-dot">۱</div>
+        <div class="step-content">
+          <div class="step-title">Backend: endpoint ارسال vote</div>
+          <div class="step-desc">ارسال batch vote به Cloudflare Worker با JWT token:</div>
+          <div class="step-code">
+<span class="cm"># POST /api/vote</span>
+<span class="kw">@api_router.post</span>(<span class="str">"/vote"</span>)
+<span class="kw">async def</span> <span class="fn">send_votes</span>(votes: List[dict]):
+    worker_url  = os.environ[<span class="str">'WORKER_URL'</span>]
+    auth_token  = os.environ[<span class="str">'WORKER_TOKEN'</span>]
+    <span class="kw">async with</span> httpx.<span class="fn">AsyncClient</span>() <span class="kw">as</span> client:
+        resp = <span class="kw">await</span> client.<span class="fn">post</span>(
+            f<span class="str">"{worker_url}/dashboard/api/vote"</span>,
+            json={<span class="str">"votes"</span>: votes},
+            headers={<span class="str">"Authorization"</span>: f<span class="str">"Bearer {auth_token}"</span>}
+        )
+    <span class="kw">return</span> resp.<span class="fn">json</span>()</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-dot">۲</div>
+        <div class="step-content">
+          <div class="step-title">Frontend: ارسال auto-like بعد از تست موفق</div>
+          <div class="step-desc">پس از هر batch که نتایج موفق دارد، batch vote ارسال شود. این عملیات async است و block نمی‌کند:</div>
+          <div class="step-code">
+<span class="cm">// بعد از هر batch test:</span>
+<span class="kw">const</span> successResults = results.<span class="fn">filter</span>(r => r.success)
+<span class="kw">if</span> (successResults.length > <span class="num">0</span>) {
+  <span class="cm">// non-blocking — fire and forget</span>
+  <span class="fn">dispatchVotes</span>(successResults).<span class="fn">catch</span>(() => {}) <span class="cm">// ارسال to backend</span>
+}
+
+<span class="kw">const</span> <span class="fn">dispatchVotes</span> = (results: TestResult[]) => {
+  <span class="kw">const</span> votes = results.<span class="fn">map</span>(r => ({ hash: r.config_id, type: <span class="str">'like'</span> }))
+  <span class="kw">return</span> <span class="fn">fetch</span>(`${API_BASE}/api/vote`, {
+    method: <span class="str">'POST'</span>, body: <span class="fn">JSON.stringify</span>({ votes })
+  })
+}</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-dot">۳</div>
+        <div class="step-content">
+          <div class="step-title">دکمه Report (👎) در لیست کانفیگ‌ها</div>
+          <div class="step-desc">کاربر می‌تواند کانفیگ مشکل‌دار را گزارش دهد — dislike به Worker ارسال می‌شود</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ====== PHASE 4 ====== -->
+<div class="phase-card" id="phase4">
+  <div class="phase-header">
+    <div class="phase-num-badge badge-purple">۴</div>
+    <div class="phase-title-group">
+      <div class="phase-title">تنظیمات کامل + سیستم اشتراک</div>
+      <div class="phase-subtitle">Subscription tab، QR Scanner، Copy Config، Settings page</div>
+    </div>
+    <div class="phase-meta">
+      <span class="phase-tag badge-purple">فاز چهارم</span>
+      <span class="phase-tag" style="background:var(--surface2);color:var(--text2)">۲ روز</span>
+    </div>
+  </div>
+  <div class="phase-body">
+    <div class="steps">
+      <div class="step">
+        <div class="step-dot">۱</div>
+        <div class="step-content">
+          <div class="step-title">تب اشتراک (subscription.tsx)</div>
+          <div class="step-desc">صفحه مدیریت اشتراک‌ها با قابلیت‌های زیر:</div>
+          <div class="step-code">
+<span class="cm">// بخش‌های صفحه اشتراک:</span>
+<span class="num">1.</span> نوع فعال: [ عمومی (Bot Pro) | خصوصی (کد) ]
+<span class="num">2.</span> ورود کد دستی: TextInput format: "AdminID-ClientID"
+<span class="num">3.</span> اسکن QR Code: expo-barcode-scanner → parse code
+<span class="num">4.</span> لیست اشتراک‌های ذخیره‌شده (قابل switch)
+<span class="num">5.</span> نمایش آمار مصرف (volumeMB) + انقضا
+<span class="num">6.</span> اتصال به GET /api/user-sub?code=...
+<span class="num">7.</span> Decode Base64 → آرایه کانفیگ‌های شخصی</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-dot">۲</div>
+        <div class="step-content">
+          <div class="step-title">کپی Raw Config + کارت جزئیات</div>
+          <div class="step-desc">در لیست کانفیگ‌ها، هر کارت دکمه کپی داشته باشد با Haptic feedback. Modal جزئیات با raw config:</div>
+          <div class="step-code">
+<span class="kw">import</span> * <span class="kw">as</span> Clipboard <span class="kw">from</span> <span class="str">'expo-clipboard'</span>
+<span class="kw">import</span> * <span class="kw">as</span> Haptics <span class="kw">from</span> <span class="str">'expo-haptics'</span>
+
+<span class="kw">const</span> <span class="fn">copyConfig</span> = <span class="kw">async</span> (raw: <span class="kw">string</span>) => {
+  <span class="kw">await</span> Clipboard.<span class="fn">setStringAsync</span>(raw)
+  <span class="kw">await</span> Haptics.<span class="fn">notificationAsync</span>(Haptics.NotificationFeedbackType.<span class="fn">Success</span>)
+  <span class="cm">// show "کپی شد!" toast for 2s</span>
+}</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-dot">۳</div>
+        <div class="step-content">
+          <div class="step-title">صفحه تنظیمات کامل</div>
+          <div class="step-desc">بازنویسی settings.tsx با بخش‌های زیر:</div>
+          <div class="step-code">
+<span class="cm">// بخش‌های settings:</span>
+<span class="num">1.</span> سرور پشتیبان   → EXPO_PUBLIC_BACKEND_URL (قابل تغییر)
+<span class="num">2.</span> آدرس Worker     → EXPO_PUBLIC_WORKER_URL
+<span class="num">3.</span> DNS پیش‌فرض    → ["8.8.8.8", "1.1.1.1", "403.online"] picker
+<span class="num">4.</span> تایم‌اوت TCP    → slider [1-10 ثانیه]
+<span class="num">5.</span> اندازه batch    → slider [10-50]
+<span class="num">6.</span> حداکثر تأخیر   → slider [500-5000 ms]
+<span class="num">7.</span> اعلانات         → toggle
+<span class="num">8.</span> آمار و گزارش    → نمودار تست‌های انجام‌شده
+<span class="num">9.</span> پاک‌سازی cache  → حذف کانفیگ‌های ذخیره‌شده
+<span class="num">10.</span> درباره / آپدیت  → نسخه + دکمه آپدیت</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ====== PHASE 5 ====== -->
+<div class="phase-card" id="phase5">
+  <div class="phase-header">
+    <div class="phase-num-badge badge-red">۵</div>
+    <div class="phase-title-group">
+      <div class="phase-title">سیستم اعلانات، آپدیت و تبلیغات</div>
+      <div class="phase-subtitle">App Update Modal، Announcement Banner، Ads Support</div>
+    </div>
+    <div class="phase-meta">
+      <span class="phase-tag badge-red">فاز پنجم</span>
+      <span class="phase-tag" style="background:var(--surface2);color:var(--text2)">۱ روز</span>
+    </div>
+  </div>
+  <div class="phase-body">
+    <div class="steps">
+      <div class="step">
+        <div class="step-dot">۱</div>
+        <div class="step-content">
+          <div class="step-title">بررسی آپدیت هنگام راه‌اندازی</div>
+          <div class="step-code">
+<span class="cm">// app/_layout.tsx — useEffect on mount:</span>
+<span class="kw">const</span> current = <span class="str">'1.0.0'</span>  <span class="cm">// از Constants.expoConfig.version</span>
+<span class="kw">const</span> data = <span class="kw">await</span> <span class="fn">fetch</span>(`${API_BASE}/api/app-update`)
+<span class="kw">if</span> (data.version !== current) {
+  <span class="fn">showUpdateModal</span>({ ...data })
+  <span class="kw">if</span> (data.force) <span class="cm">// block all navigation until update</span>
+}</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-dot">۲</div>
+        <div class="step-content">
+          <div class="step-title">سیستم اعلانات (Announcements)</div>
+          <div class="step-desc">بنر dismissable در بالای home با ذخیره "خوانده شده" در AsyncStorage تا دوباره نشان ندهد</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-dot">۳</div>
+        <div class="step-content">
+          <div class="step-title">پشتیبانی از تبلیغات</div>
+          <div class="step-desc">ساختار قابل توسعه برای AdBanner با موارد:</div>
+          <div class="step-code">
+<span class="cm">// AdBanner component — configurable از announcement API:</span>
+<span class="cm">// type: "banner" → نوار پایین صفحه</span>
+<span class="cm">// type: "interstitial" → هنگام قطع اتصال</span>
+<span class="cm">// type: "card" → در لیست کانفیگ‌ها (هر 10 آیتم)</span>
+<span class="cm">// فعلاً از announcement endpoint استفاده می‌شود</span>
+<span class="cm">// آینده: AdMob یا تبلیغات داخلی Bot Pro</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ====== PHASE 6 ====== -->
+<div class="phase-card" id="phase6">
+  <div class="phase-header">
+    <div class="phase-num-badge badge-cyan">۶</div>
+    <div class="phase-title-group">
+      <div class="phase-title">بهینه‌سازی عملکرد و کیفیت</div>
+      <div class="phase-subtitle">Memoization، Caching، Error Handling، Loading Skeletons</div>
+    </div>
+    <div class="phase-meta">
+      <span class="phase-tag badge-cyan">فاز ششم</span>
+      <span class="phase-tag" style="background:var(--surface2);color:var(--text2)">۱ روز</span>
+    </div>
+  </div>
+  <div class="phase-body">
+    <div class="steps">
+      <div class="step">
+        <div class="step-dot">۱</div>
+        <div class="step-content">
+          <div class="step-title">Smart Caching Strategy</div>
+          <div class="step-code">
+<span class="cm">// AsyncStorage keys با TTL:</span>
+countries_cache:     TTL = <span class="num">30</span> دقیقه
+configs_{country}:   TTL = <span class="num">5</span>  دقیقه
+announcement:        TTL = <span class="num">10</span> دقیقه
+app_update_checked:  TTL = <span class="num">1</span>  ساعت
+
+<span class="kw">const</span> <span class="fn">getCachedOrFetch</span> = <span class="kw">async</span> (key, fetchFn, ttlMs) => {
+  <span class="kw">const</span> cached = <span class="kw">await</span> AsyncStorage.<span class="fn">getItem</span>(key)
+  <span class="kw">if</span> (cached) {
+    <span class="kw">const</span> { data, timestamp } = <span class="fn">JSON.parse</span>(cached)
+    <span class="kw">if</span> (Date.<span class="fn">now</span>() - timestamp &lt; ttlMs) <span class="kw">return</span> data
+  }
+  <span class="kw">const</span> fresh = <span class="kw">await</span> <span class="fn">fetchFn</span>()
+  <span class="kw">await</span> AsyncStorage.<span class="fn">setItem</span>(key, <span class="fn">JSON.stringify</span>({ data: fresh, timestamp: Date.<span class="fn">now</span>() }))
+  <span class="kw">return</span> fresh
+}</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-dot">۲</div>
+        <div class="step-content">
+          <div class="step-title">Dynamic Batch Size بر اساس تعداد کانفیگ</div>
+          <div class="step-code">
+<span class="kw">const</span> BATCH_SIZE = configs.length > <span class="num">200</span> ? <span class="num">50</span> :
+                   configs.length > <span class="num">100</span> ? <span class="num">30</span> : <span class="num">20</span>
+<span class="kw">const</span> CONCURRENCY = <span class="num">15</span>  <span class="cm">// TCP connections همزمان</span>
+<span class="kw">const</span> TCP_TIMEOUT  = <span class="num">3000</span> <span class="cm">// 3 ثانیه برای اتصال TCP</span></div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-dot">۳</div>
+        <div class="step-content">
+          <div class="step-title">Error States کاربرپسند فارسی</div>
+          <div class="step-code">
+<span class="kw">const</span> ERROR_MESSAGES = {
+  <span class="str">'network'</span>:     <span class="str">'اتصال اینترنت برقرار نیست'</span>,
+  <span class="str">'no_configs'</span>:  <span class="str">'کانفیگی برای این کشور یافت نشد — کشور دیگری انتخاب کنید'</span>,
+  <span class="str">'all_dead'</span>:    <span class="str">'هیچ کانفیگ فعالی یافت نشد — بعداً تلاش کنید'</span>,
+  <span class="str">'server_error'</span>:<span class="str">'خطا در سرور — لطفاً گزارش دهید'</span>,
+  <span class="str">'invalid_code'</span>:<span class="str">'کد اشتراک نامعتبر است'</span>,
+  <span class="str">'sub_expired'</span>: <span class="str">'اشتراک شما منقضی شده است'</span>,
+}</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-dot">۴</div>
+        <div class="step-content">
+          <div class="step-title">FlatList بهینه‌سازی‌شده برای لیست بلند</div>
+          <div class="step-code">
+&lt;<span class="fn">FlatList</span>
+  data={configs}
+  <span class="fn">getItemLayout</span>={(_, i) => ({ length: <span class="num">88</span>, offset: <span class="num">88</span>*i, index: i })}
+  <span class="fn">windowSize</span>={<span class="num">5</span>}
+  <span class="fn">maxToRenderPerBatch</span>={<span class="num">20</span>}
+  <span class="fn">removeClippedSubviews</span>={<span class="kw">true</span>}
+  <span class="fn">initialNumToRender</span>={<span class="num">15</span>}
+/&gt;</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div><!-- end phases -->
+
+<!-- ====== PERF ====== -->
+<div class="section" id="perf">
+  <div class="section-header">
+    <div class="section-icon icon-green">⚡</div>
+    <div>
+      <h2>اهداف عملکردی</h2>
+    </div>
+  </div>
+  <div class="perf-grid">
+    <div class="perf-card">
+      <h4>🚀 سرعت اتصال</h4>
+      <div class="perf-item"><span>اولین کانفیگ موفق</span><span class="perf-val">&lt; 5 ثانیه</span></div>
+      <div class="perf-item"><span>دریافت لیست کشورها</span><span class="perf-val">&lt; 800ms</span></div>
+      <div class="perf-item"><span>دریافت کانفیگ‌ها</span><span class="perf-val">&lt; 2 ثانیه</span></div>
+      <div class="perf-item"><span>هر تست TCP</span><span class="perf-val">&lt; 3 ثانیه</span></div>
+    </div>
+    <div class="perf-card">
+      <h4>📊 ظرفیت</h4>
+      <div class="perf-item"><span>کانفیگ‌های تست همزمان</span><span class="perf-val">15 عدد</span></div>
+      <div class="perf-item"><span>اندازه هر batch</span><span class="perf-val">30-50 عدد</span></div>
+      <div class="perf-item"><span>حداکثر کانفیگ از API</span><span class="perf-val">100 عدد</span></div>
+      <div class="perf-item"><span>Cache TTL کشورها</span><span class="perf-val">30 دقیقه</span></div>
+    </div>
+    <div class="perf-card">
+      <h4>💾 حافظه</h4>
+      <div class="perf-item"><span>FlatList windowSize</span><span class="perf-val">5 صفحه</span></div>
+      <div class="perf-item"><span>maxToRenderPerBatch</span><span class="perf-val">20 آیتم</span></div>
+      <div class="perf-item"><span>getItemLayout</span><span class="perf-val">height=88px</span></div>
+      <div class="perf-item"><span>removeClippedSubviews</span><span class="perf-val">true</span></div>
+    </div>
+    <div class="perf-card">
+      <h4>🔒 کیفیت کد</h4>
+      <div class="perf-item"><span>TypeScript strict mode</span><span class="perf-val">✓ فعال</span></div>
+      <div class="perf-item"><span>React.memo</span><span class="perf-val">برای card ها</span></div>
+      <div class="perf-item"><span>useCallback</span><span class="perf-val">برای handlers</span></div>
+      <div class="perf-item"><span>useMemo</span><span class="perf-val">برای filtered lists</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ====== TIMELINE ====== -->
+<div class="section" id="timeline">
+  <div class="section-header">
+    <div class="section-icon icon-blue">📅</div>
+    <div>
+      <h2>تایم‌لاین اجرا</h2>
+    </div>
+  </div>
+  <div class="timeline">
+    <div class="tl-item">
+      <div class="tl-dot" style="background:var(--accent)"></div>
+      <div class="tl-content">
+        <div class="tl-phase" style="color:var(--accent)">فاز ۱ — زیرساخت</div>
+        <div class="tl-title">فایل‌های مشترک، Types، env، Backend Proxy</div>
+        <ul class="tl-items">
+          <li>constants/ + utils/ + types/</li>
+          <li>useAppStore (global state)</li>
+          <li>Backend: 5 endpoint proxy جدید</li>
+        </ul>
+        <span class="tl-time">روز ۱</span>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot" style="background:var(--blue)"></div>
+      <div class="tl-content">
+        <div class="tl-phase" style="color:var(--blue)">فاز ۲ — Landing Page</div>
+        <div class="tl-title">Country Picker، Operator، Mode Tabs، Connect Logic</div>
+        <ul class="tl-items">
+          <li>CountryPicker Modal + Search</li>
+          <li>OperatorSelector + منطق فیلتر</li>
+          <li>بازنویسی handleConnect کامل</li>
+          <li>نمایش کانال تلگرام + Announcement Banner</li>
+        </ul>
+        <span class="tl-time">روز ۲–۳</span>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot" style="background:var(--yellow)"></div>
+      <div class="tl-content">
+        <div class="tl-phase" style="color:var(--yellow)">فاز ۳ — Vote System</div>
+        <div class="tl-title">auto-like، Report button، backend vote proxy</div>
+        <ul class="tl-items">
+          <li>dispatchVotes (non-blocking)</li>
+          <li>Report 👎 در لیست</li>
+        </ul>
+        <span class="tl-time">روز ۴</span>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot" style="background:var(--purple)"></div>
+      <div class="tl-content">
+        <div class="tl-phase" style="color:var(--purple)">فاز ۴ — اشتراک + تنظیمات</div>
+        <div class="tl-title">Subscription tab، QR Scanner، Copy Config، Settings کامل</div>
+        <ul class="tl-items">
+          <li>subscription.tsx جدید</li>
+          <li>QR Code Scanner</li>
+          <li>expo-clipboard copy</li>
+          <li>Settings با همه بخش‌ها</li>
+        </ul>
+        <span class="tl-time">روز ۵–۶</span>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot" style="background:var(--red)"></div>
+      <div class="tl-content">
+        <div class="tl-phase" style="color:var(--red)">فاز ۵ — اعلانات + آپدیت</div>
+        <div class="tl-title">Update Modal، Announcement Banner، Ad Support</div>
+        <ul class="tl-items">
+          <li>Update check در _layout.tsx</li>
+          <li>Force update modal</li>
+          <li>Ad banner ساختار</li>
+        </ul>
+        <span class="tl-time">روز ۷</span>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot" style="background:var(--cyan)"></div>
+      <div class="tl-content">
+        <div class="tl-phase" style="color:var(--cyan)">فاز ۶ — بهینه‌سازی</div>
+        <div class="tl-title">Caching، Performance، Error States، Testing</div>
+        <ul class="tl-items">
+          <li>getCachedOrFetch helper</li>
+          <li>FlatList بهینه‌سازی</li>
+          <li>پیام‌های خطای فارسی</li>
+        </ul>
+        <span class="tl-time">روز ۸</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- end content -->
+</div><!-- end main -->
+
+</body>
+</html>
