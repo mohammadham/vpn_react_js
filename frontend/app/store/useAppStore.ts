@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { ConfigResult, ConnectionState, Country, SubscriptionInfo } from '../types';
+import { ConfigResult, ConnectionState, Country, SubscriptionInfo, TestTarget } from '../types';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 interface AppState {
@@ -7,11 +7,13 @@ interface AppState {
   bestConfig: ConfigResult | null;
   selectedCountry: Country | null;
   subscription: SubscriptionInfo | null;
+  testTarget: TestTarget | null;
 
   setConnectionState: (state: ConnectionState) => void;
   setBestConfig: (config: ConfigResult | null) => void;
   setSelectedCountry: (country: Country | null) => void;
   setSubscription: (sub: SubscriptionInfo | null) => void;
+  setTestTarget: (target: TestTarget | null) => void;
 
   loadInitialState: () => Promise<void>;
   disconnect: () => Promise<void>;
@@ -22,6 +24,7 @@ export const useAppStore = create<AppState>((set) => ({
   bestConfig: null,
   selectedCountry: null,
   subscription: null,
+  testTarget: null,
 
   setConnectionState: (state) => set({ connectionState: state }),
 
@@ -52,18 +55,29 @@ export const useAppStore = create<AppState>((set) => ({
     }
   },
 
+  setTestTarget: (target) => {
+    set({ testTarget: target });
+    if (target) {
+       AsyncStorage.setItem('testTarget', JSON.stringify(target));
+    } else {
+       AsyncStorage.removeItem('testTarget');
+    }
+  },
+
   loadInitialState: async () => {
     try {
-      const [bestConfig, selectedCountry, subscription] = await Promise.all([
+      const [bestConfig, selectedCountry, subscription, testTarget] = await Promise.all([
         AsyncStorage.getItem('bestConfig'),
         AsyncStorage.getItem('selectedCountry'),
         AsyncStorage.getItem('subscription'),
+        AsyncStorage.getItem('testTarget'),
       ]);
 
       set({
         bestConfig: bestConfig ? JSON.parse(bestConfig) : null,
         selectedCountry: selectedCountry ? JSON.parse(selectedCountry) : null,
         subscription: subscription ? JSON.parse(subscription) : null,
+        testTarget: testTarget ? JSON.parse(testTarget) : null,
       });
     } catch (e) {
       console.error('Failed to load initial state', e);

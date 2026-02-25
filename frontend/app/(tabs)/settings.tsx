@@ -12,11 +12,30 @@ import {
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { COLORS } from '../constants/colors';
 import { useAppStore } from '../store/useAppStore';
+import { apiService } from '../services/apiService';
+import { TestTarget } from '../types';
 
 export default function SettingsScreen() {
-  const { disconnect } = useAppStore();
+  const { disconnect, testTarget, setTestTarget } = useAppStore();
   const [notifications, setNotifications] = useState(true);
   const [autoConnect, setAutoConnect] = useState(false);
+  const [testTargets, setTestTargets] = useState<TestTarget[]>([]);
+  const [loadingTargets, setLoadingTargets] = useState(false);
+
+  useEffect(() => {
+    fetchTargets();
+  }, []);
+
+  const fetchTargets = async () => {
+    setLoadingTargets(true);
+    try {
+      const targets = await apiService.getTestTargets();
+      setTestTargets(targets);
+    } catch (e) {
+      console.error(e);
+    }
+    setLoadingTargets(false);
+  };
 
   const handleReset = () => {
     Alert.alert('بازنشانی تنظیمات', 'آیا مایل به پاک کردن کش و تنظیمات برنامه هستید؟', [
@@ -90,6 +109,34 @@ export default function SettingsScreen() {
             <View style={styles.divider} />
             <SettingItem icon="dns-outline" title="تنظیمات DNS" />
             <View style={styles.divider} />
+
+            <View style={styles.targetSection}>
+              <View style={styles.targetHeader}>
+                <MaterialCommunityIcons name="flask-outline" size={18} color={COLORS.primary} />
+                <Text style={styles.targetLabel}>هدف تست حقیقی</Text>
+              </View>
+
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.targetScroll}>
+                <TouchableOpacity
+                  style={[styles.targetChip, !testTarget && styles.targetChipActive]}
+                  onPress={() => setTestTarget(null)}
+                >
+                  <Text style={[styles.targetChipText, !testTarget && styles.targetChipTextActive]}>پیش‌فرض (Google)</Text>
+                </TouchableOpacity>
+
+                {testTargets.map((t, i) => (
+                  <TouchableOpacity
+                    key={i}
+                    style={[styles.targetChip, testTarget?.url === t.url && styles.targetChipActive]}
+                    onPress={() => setTestTarget(t)}
+                  >
+                    <Text style={[styles.targetChipText, testTarget?.url === t.url && styles.targetChipTextActive]}>{t.name}</Text>
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
+            </View>
+
+            <View style={styles.divider} />
             <SettingItem icon="poker-chip" title="حذف تبلیغات (بزودی)" />
           </View>
         </View>
@@ -118,6 +165,14 @@ export default function SettingsScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: COLORS.bg },
+  targetSection: { padding: 16 },
+  targetHeader: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 12 },
+  targetLabel: { color: COLORS.text, fontSize: 14, fontWeight: '600' },
+  targetScroll: { gap: 10 },
+  targetChip: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 15, backgroundColor: COLORS.bg, borderWidth: 1, borderColor: COLORS.border },
+  targetChipActive: { borderColor: COLORS.primary, backgroundColor: COLORS.primary + '10' },
+  targetChipText: { color: COLORS.textSecondary, fontSize: 12 },
+  targetChipTextActive: { color: COLORS.primary, fontWeight: 'bold' },
   scrollContent: { paddingHorizontal: 20, paddingTop: 60, paddingBottom: 40 },
   headerTitle: { fontSize: 24, fontWeight: 'bold', color: COLORS.text, marginBottom: 30, textAlign: 'right' },
   section: { marginBottom: 25 },

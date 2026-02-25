@@ -54,6 +54,19 @@ export const apiService = {
     return response.json();
   },
 
+  async getTestTargets(): Promise<{ name: string; url: string; port: number; method: string }[]> {
+    const response = await fetch(`${WORKER_URL}/api/test-targets`);
+    if (!response.ok) {
+        // Fallback default targets
+        return [
+            { name: 'Google (HTTP)', url: 'http://www.google.com', port: 80, method: 'HEAD' },
+            { name: 'Cloudflare (HTTPS)', url: 'https://www.cloudflare.com', port: 443, method: 'GET' },
+            { name: 'Speedtest API', url: 'https://www.speedtest.net', port: 443, method: 'HEAD' }
+        ];
+    }
+    return response.json();
+  },
+
   async voteConfig(votes: { hash: string, type: 'like' | 'dislike' }[], token?: string) {
     // Note: Dashboard API requires authentication.
     // If we're doing "Auto-Like", we might need a system token or the worker should allow it.

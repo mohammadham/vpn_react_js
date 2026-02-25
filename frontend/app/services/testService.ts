@@ -6,15 +6,16 @@ export const testService = {
    * In production, this calls the Native Module to perform a real
    * V2Ray handshake and measure the time to get a response from a target URL.
    */
-  async testConfig(config: ConfigResult): Promise<{ success: boolean; latency: number }> {
+  async testConfig(config: ConfigResult, targetUrl?: string, method: string = 'HEAD'): Promise<{ success: boolean; latency: number }> {
     const start = Date.now();
     const timeout = 4000;
-    const TARGET_URL = 'http://www.gstatic.com/generate_204';
+    const DEFAULT_TARGET = 'http://www.gstatic.com/generate_204';
+    const finalTarget = targetUrl || DEFAULT_TARGET;
 
     try {
       // PRO MODE: Using Native Bridge if available
       // if (NativeModules.V2RayModule) {
-      //   return await NativeModules.V2RayModule.measureRealDelay(config.raw, TARGET_URL);
+      //   return await NativeModules.V2RayModule.measureRealDelay(config.raw, finalTarget);
       // }
 
       // FALLBACK: Advanced TCP Health Check
@@ -22,10 +23,13 @@ export const testService = {
       const timer = setTimeout(() => controller.abort(), timeout);
 
       try {
-        // We use a HEAD request if possible, or a simple fetch
-        // This simulates the initial handshake/response cycle
+        // Advanced Health Check: We simulate the handshake by connecting to the server.
+        // If a custom target is provided, we assume the config is already proxied or we're testing connectivity.
+        // For 'Real Test' with a specific URL, it's usually done THROUGH the tunnel.
+        // Since we test BEFORE connecting, we mostly check server reachability.
+
         await fetch(`http://${config.server}:${config.port}`, {
-          method: 'HEAD',
+          method: method as any,
           mode: 'no-cors',
           signal: controller.signal,
         });
@@ -48,14 +52,14 @@ export const testService = {
     }
   },
 
-  async testBatch(configs: ConfigResult[], onProgress?: (index: number) => void): Promise<ConfigResult[]> {
+  async testBatch(configs: ConfigResult[], targetUrl?: string, method: string = 'HEAD', onProgress?: (index: number) => void): Promise<ConfigResult[]> {
     const results: ConfigResult[] = [];
     const BATCH_SIZE = 10; // Concurrent tests
 
     for (let i = 0; i < configs.length; i += BATCH_SIZE) {
       const batch = configs.slice(i, i + BATCH_SIZE);
       const batchPromises = batch.map(async (cfg, idx) => {
-        const testRes = await this.testConfig(cfg);
+        const testRes = await this.testConfig(cfg, targetUrl, method);
         if (onProgress) onProgress(i + idx + 1);
         return { ...cfg, success: testRes.success, latency_ms: testRes.latency };
       });

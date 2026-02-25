@@ -12,6 +12,7 @@ export interface ConfigResult {
   latency_ms: number;
   raw?: string;
   quality_score?: number;
+  params?: Record<string, string>; // Advanced V2Ray parameters
 }
 
 export type ConnectionState = 'disconnected' | 'connecting' | 'testing' | 'connected' | 'error';
@@ -29,4 +30,11 @@ export interface Country {
   country: string;
   countryCode: string;
   count: number;
+}
+
+export interface TestTarget {
+  name: string;
+  url: string;
+  port: number;
+  method: string;
 }

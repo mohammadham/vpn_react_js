@@ -26,7 +26,8 @@ export default function DashboardScreen() {
   const {
     connectionState, setConnectionState,
     bestConfig, setBestConfig,
-    subscription, loadInitialState
+    subscription, loadInitialState,
+    testTarget
   } = useAppStore();
 
   const pulseAnim = useRef(new Animated.Value(1)).current;
@@ -84,7 +85,11 @@ export default function DashboardScreen() {
 
       // Test top 20 configs
       const toTest = parsedConfigs.slice(0, 20);
-      const results = await testService.testBatch(toTest);
+      const results = await testService.testBatch(
+        toTest,
+        testTarget?.url,
+        testTarget?.method || 'HEAD'
+      );
       const successResults = results.filter(r => r.success).sort((a, b) => a.latency_ms - b.latency_ms);
 
       if (successResults.length > 0) {
