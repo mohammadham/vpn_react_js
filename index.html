@@ -1,0 +1,648 @@
+
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>مستندات V2Ray Config Manager</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --surface2: #1c2333;
+    --border: #30363d;
+    --accent: #00FF94;
+    --accent-dim: rgba(0,255,148,0.1);
+    --accent-glow: rgba(0,255,148,0.2);
+    --blue: #58a6ff;
+    --yellow: #f0b429;
+    --red: #f85149;
+    --purple: #bc8cff;
+    --text: #e6edf3;
+    --text2: #8b949e;
+    --text3: #6e7681;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Vazirmatn', sans-serif;
+    line-height: 1.8;
+    font-size: 15px;
+  }
+  .sidebar {
+    position: fixed;
+    top: 0; right: 0;
+    width: 260px;
+    height: 100vh;
+    background: var(--surface);
+    border-left: 1px solid var(--border);
+    overflow-y: auto;
+    padding: 24px 16px;
+    z-index: 100;
+  }
+  .sidebar h3 {
+    color: var(--accent);
+    font-size: 12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+  .sidebar a {
+    display: block;
+    color: var(--text2);
+    text-decoration: none;
+    font-size: 13px;
+    padding: 5px 8px;
+    border-radius: 6px;
+    margin-bottom: 2px;
+    transition: all 0.2s;
+  }
+  .sidebar a:hover {
+    background: var(--accent-dim);
+    color: var(--accent);
+  }
+  .sidebar a.sub { padding-right: 20px; font-size: 12px; }
+  .main {
+    margin-right: 260px;
+    max-width: 860px;
+    padding: 48px 40px;
+  }
+  /* Header */
+  .doc-header {
+    background: linear-gradient(135deg, var(--surface2) 0%, rgba(0,255,148,0.05) 100%);
+    border: 1px solid var(--border);
+    border-top: 3px solid var(--accent);
+    border-radius: 12px;
+    padding: 32px;
+    margin-bottom: 40px;
+  }
+  .doc-header h1 {
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--accent);
+    margin-bottom: 6px;
+  }
+  .doc-header .sub { color: var(--text2); font-size: 14px; }
+  .badge-row { display: flex; gap: 8px; margin-top: 16px; flex-wrap: wrap; }
+  .badge {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .badge-green { background: rgba(0,255,148,0.1); color: var(--accent); border: 1px solid rgba(0,255,148,0.3); }
+  .badge-blue { background: rgba(88,166,255,0.1); color: var(--blue); border: 1px solid rgba(88,166,255,0.3); }
+  .badge-yellow { background: rgba(240,180,41,0.1); color: var(--yellow); border: 1px solid rgba(240,180,41,0.3); }
+  .badge-red { background: rgba(248,81,73,0.1); color: var(--red); border: 1px solid rgba(248,81,73,0.3); }
+
+  h2 {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text);
+    margin: 40px 0 16px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  h2 .num {
+    background: var(--accent-dim);
+    color: var(--accent);
+    width: 28px; height: 28px;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 700; flex-shrink: 0;
+  }
+  h3 { font-size: 15px; font-weight: 600; color: var(--blue); margin: 24px 0 12px; }
+
+  /* Architecture diagram */
+  .arch-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--text2);
+    white-space: pre;
+    overflow-x: auto;
+    line-height: 1.6;
+  }
+
+  /* Tables */
+  table { width: 100%; border-collapse: collapse; margin: 16px 0; }
+  th {
+    background: var(--surface2);
+    color: var(--text2);
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 10px 14px;
+    text-align: right;
+    border-bottom: 2px solid var(--border);
+  }
+  td {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    font-size: 14px;
+    vertical-align: top;
+  }
+  tr:hover td { background: rgba(255,255,255,0.02); }
+  .status-ok { color: var(--accent); }
+  .status-no { color: var(--red); }
+  .status-partial { color: var(--yellow); }
+
+  /* Priority cards */
+  .priority-section { margin: 20px 0; }
+  .priority-card {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 20px;
+    margin-bottom: 12px;
+    position: relative;
+    overflow: hidden;
+  }
+  .priority-card::before {
+    content: '';
+    position: absolute;
+    top: 0; right: 0;
+    width: 4px; height: 100%;
+  }
+  .p0::before { background: var(--red); }
+  .p1::before { background: var(--yellow); }
+  .p2::before { background: var(--accent); }
+  .p0 { background: rgba(248,81,73,0.04); }
+  .p1 { background: rgba(240,180,41,0.04); }
+  .p2 { background: rgba(0,255,148,0.04); }
+  .priority-label {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 4px;
+    margin-bottom: 6px;
+  }
+  .p0-label { background: rgba(248,81,73,0.15); color: var(--red); }
+  .p1-label { background: rgba(240,180,41,0.15); color: var(--yellow); }
+  .p2-label { background: rgba(0,255,148,0.15); color: var(--accent); }
+  .priority-card h4 { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+  .priority-card p { font-size: 13px; color: var(--text2); }
+
+  /* Code */
+  code {
+    font-family: 'JetBrains Mono', monospace;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 12px;
+    color: var(--purple);
+    direction: ltr;
+    display: inline-block;
+  }
+  pre {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px;
+    overflow-x: auto;
+    margin: 12px 0;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    line-height: 1.7;
+    direction: ltr;
+    text-align: left;
+    color: var(--text2);
+  }
+  pre .green { color: var(--accent); }
+  pre .blue { color: var(--blue); }
+  pre .yellow { color: var(--yellow); }
+  pre .red { color: var(--red); }
+  pre .purple { color: var(--purple); }
+  pre .comment { color: var(--text3); }
+
+  /* Progress bars */
+  .progress-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin: 16px 0;
+  }
+  .progress-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px;
+  }
+  .progress-item .label { font-size: 13px; color: var(--text2); margin-bottom: 8px; }
+  .progress-bar-bg {
+    height: 6px;
+    background: var(--surface2);
+    border-radius: 3px;
+    overflow: hidden;
+    margin-bottom: 4px;
+  }
+  .progress-fill { height: 100%; border-radius: 3px; transition: width 1s ease; }
+  .progress-item .pct { font-size: 12px; font-weight: 700; }
+
+  /* Roadmap */
+  .roadmap { margin: 16px 0; }
+  .phase {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 16px;
+    align-items: flex-start;
+  }
+  .phase-num {
+    width: 32px; height: 32px; flex-shrink: 0;
+    background: var(--accent-dim);
+    border: 1px solid rgba(0,255,148,0.3);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700; color: var(--accent);
+  }
+  .phase-content { flex: 1; }
+  .phase-title { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+  .phase-items { font-size: 13px; color: var(--text2); }
+  .phase-items li { margin-bottom: 2px; list-style: none; padding-right: 16px; position: relative; }
+  .phase-items li::before { content: '○'; position: absolute; right: 0; color: var(--text3); font-size: 10px; top: 2px; }
+  .phase-time {
+    font-size: 11px;
+    color: var(--text3);
+    border: 1px solid var(--border);
+    padding: 2px 8px;
+    border-radius: 12px;
+    white-space: nowrap;
+    margin-top: 4px;
+    display: inline-block;
+  }
+
+  /* Summary block */
+  .summary-total {
+    background: linear-gradient(135deg, rgba(0,255,148,0.05), rgba(88,166,255,0.05));
+    border: 1px solid rgba(0,255,148,0.2);
+    border-radius: 12px;
+    padding: 24px;
+    text-align: center;
+    margin-top: 20px;
+  }
+  .big-pct { font-size: 48px; font-weight: 800; color: var(--accent); line-height: 1; margin-bottom: 4px; }
+  .big-pct-sub { font-size: 14px; color: var(--text2); }
+
+  .divider { border: none; border-top: 1px solid var(--border); margin: 32px 0; }
+  li { margin-right: 20px; margin-bottom: 4px; color: var(--text2); font-size: 14px; }
+  p { color: var(--text2); font-size: 14px; margin-bottom: 8px; }
+  strong { color: var(--text); }
+</style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<nav class="sidebar">
+  <h3>فهرست مطالب</h3>
+  <a href="#intro">۱. معرفی پروژه</a>
+  <a href="#arch">۲. معماری سیستم</a>
+  <a href="#files">۳. ساختار فایل‌ها</a>
+  <a href="#done">۴. پیاده‌سازی‌شده</a>
+  <a class="sub" href="#done">۴.۱ صفحه اتصال</a>
+  <a class="sub" href="#done">۴.۲ کانفیگ‌ها</a>
+  <a class="sub" href="#done">۴.۳ تنظیمات</a>
+  <a class="sub" href="#done">۴.۴ Backend</a>
+  <a href="#missing">۵. بخش‌های ناقص</a>
+  <a href="#debt">۶. بدهی فنی</a>
+  <a href="#strengths">۹. نقاط قوت</a>
+  <a href="#weaknesses">۱۰. نقاط ضعف</a>
+  <a href="#roadmap">۱۱. نقشه راه</a>
+  <a href="#summary">۱۵. خلاصه</a>
+</nav>
+
+<!-- Main Content -->
+<main class="main">
+
+  <!-- Header -->
+  <div class="doc-header">
+    <h1>V2Ray Config Manager</h1>
+    <div class="sub">مستندات جامع — نسخه ۱.۰ | تحلیل کامل وضعیت فعلی و نقشه راه</div>
+    <div class="badge-row">
+      <span class="badge badge-blue">React Native + Expo</span>
+      <span class="badge badge-green">FastAPI + MongoDB</span>
+      <span class="badge badge-yellow">Cloudflare Worker</span>
+      <span class="badge badge-red">پیشرفت: ~۴۵٪</span>
+    </div>
+  </div>
+
+  <!-- Section 1 -->
+  <h2 id="intro"><span class="num">۱</span>معرفی پروژه</h2>
+  <table>
+    <tr><td><strong>نوع</strong></td><td>اپلیکیشن موبایل Android — React Native + Expo (TypeScript)</td></tr>
+    <tr><td><strong>پشتیبان</strong></td><td>FastAPI (Python) + MongoDB + Cloudflare Worker (VPN Config Bot Pro)</td></tr>
+    <tr><td><strong>هدف</strong></td><td>دریافت، تست، مدیریت و اتصال به کانفیگ‌های VPN بر پایه V2Ray</td></tr>
+    <tr><td><strong>پروتکل‌ها</strong></td><td>VLESS / VMess / Trojan / Shadowsocks</td></tr>
+    <tr><td><strong>مخاطب</strong></td><td>کاربران ایرانی نیازمند دور زدن فیلترینگ</td></tr>
+  </table>
+
+  <!-- Section 2 -->
+  <h2 id="arch"><span class="num">۲</span>معماری کلی سیستم</h2>
+  <div class="arch-box">┌─────────────────────────────────────────────────────────────┐
+│            اپلیکیشن Expo / React Native                     │
+│   index.tsx  |  configs.tsx  |  settings.tsx               │
+└──────────────────────┬──────────────────────────────────────┘
+                       │  HTTP API
+┌──────────────────────▼──────────────────────────────────────┐
+│              FastAPI Backend (server.py)                    │
+│  ▸ دریافت و parse کانفیگ از subscription URL               │
+│  ▸ تست TCP connectivity هر کانفیگ                          │
+│  ▸ ذخیره نتایج در MongoDB                                   │
+└──────────────────────┬──────────────────────────────────────┘
+                       │  (باید از API استفاده شود — در حال حاضر مستقیم)
+┌──────────────────────▼──────────────────────────────────────┐
+│         Cloudflare Worker (VPN Config Bot Pro)              │
+│  ▸ منبع اصلی کانفیگ‌های تست‌شده و رتبه‌بندی‌شده            │
+│  ▸ سیستم vote / quality score                              │
+│  ▸ مدیریت اشتراک‌های شخصی (user-sub)                       │
+│  ▸ API کشور / آپدیت اپ / اعلانات                           │
+└─────────────────────────────────────────────────────────────┘</div>
+
+  <!-- Section 3 -->
+  <h2 id="files"><span class="num">۳</span>ساختار فایل‌های موجود</h2>
+  <pre>frontend/ (Expo React Native - TypeScript)
+├── app/
+│   ├── _layout.tsx          <span class="comment">(Root Layout - RTL Forced)</span>
+│   └── (tabs)/
+│       ├── _layout.tsx      <span class="comment">(Tab Bar Navigation - 3 تب)</span>
+│       ├── index.tsx        <span class="comment">(صفحه اتصال - Dashboard  | 560 خط)</span>
+│       ├── configs.tsx      <span class="comment">(لیست کانفیگ‌های تست‌شده | 328 خط)</span>
+│       └── settings.tsx     <span class="comment">(تنظیمات - URL اشتراک    | 332 خط)</span>
+├── package.json             <span class="comment">(Expo SDK 54, RN 0.81.5)</span>
+└── .env                     <span class="comment">(EXPO_PUBLIC_BACKEND_URL)</span>
+
+backend/ (FastAPI + MongoDB - Python)
+└── server.py                <span class="comment">(393 خط - API endpoints + parsers)</span></pre>
+
+  <!-- Section 4 -->
+  <h2 id="done"><span class="num">۴</span>قابلیت‌های پیاده‌سازی‌شده</h2>
+
+  <h3>۴.۱ صفحه اتصال (index.tsx)</h3>
+  <table>
+    <tr><th>قابلیت</th><th>وضعیت</th><th>جزئیات</th></tr>
+    <tr><td>دکمه Power با انیمیشن</td><td class="status-ok">✅ کامل</td><td>Glow + Pulse animation</td></tr>
+    <tr><td>نشانگر وضعیت رنگی</td><td class="status-ok">✅ کامل</td><td>قرمز / زرد / سبز</td></tr>
+    <tr><td>دریافت کانفیگ از Subscription URL</td><td class="status-ok">✅ کامل</td><td>POST /api/configs/fetch</td></tr>
+    <tr><td>تست دسته‌ای (Batch 50 تایی)</td><td class="status-ok">✅ کامل</td><td>concurrent با Semaphore(10)</td></tr>
+    <tr><td>نوار پیشرفت</td><td class="status-ok">✅ کامل</td><td>دسته جاری / کل دسته‌ها</td></tr>
+    <tr><td>انتخاب بهترین کانفیگ</td><td class="status-ok">✅ کامل</td><td>کمترین latency_ms</td></tr>
+    <tr><td>نمایش کانال تلگرام + باز کردن</td><td class="status-ok">✅ کامل</td><td>Linking.openURL</td></tr>
+    <tr><td>ذخیره در AsyncStorage</td><td class="status-ok">✅ کامل</td><td>بین session‌ها حفظ می‌شود</td></tr>
+    <tr><td>RTL Support</td><td class="status-ok">✅ کامل</td><td>I18nManager.forceRTL</td></tr>
+  </table>
+
+  <h3>۴.۲ صفحه کانفیگ‌ها (configs.tsx)</h3>
+  <table>
+    <tr><th>قابلیت</th><th>وضعیت</th><th>جزئیات</th></tr>
+    <tr><td>لیست کانفیگ‌های تست‌شده</td><td class="status-ok">✅ کامل</td><td>GET /api/configs/results</td></tr>
+    <tr><td>فیلتر پروتکل</td><td class="status-ok">✅ کامل</td><td>all / vless / vmess / ss / trojan</td></tr>
+    <tr><td>رنگ‌بندی latency</td><td class="status-ok">✅ کامل</td><td>&lt;200ms سبز / &lt;500ms زرد / قرمز</td></tr>
+    <tr><td>Pull to Refresh</td><td class="status-ok">✅ کامل</td><td>RefreshControl</td></tr>
+    <tr><td>لینک تلگرام در هر کارت</td><td class="status-ok">✅ کامل</td><td>آیکون کلیکی</td></tr>
+    <tr><td>فیلتر کشور</td><td class="status-partial">⚠️ ناقص</td><td>داده دارد، UI picker ندارد</td></tr>
+    <tr><td>کپی Raw Config</td><td class="status-no">❌ غایب</td><td>vless://... قابل کپی نیست</td></tr>
+  </table>
+
+  <h3>۴.۴ Backend (server.py)</h3>
+  <table>
+    <tr><th>قابلیت</th><th>وضعیت</th></tr>
+    <tr><td>Parse VLESS / VMess / Shadowsocks / Trojan</td><td class="status-ok">✅ کامل</td></tr>
+    <tr><td>استخراج کانال تلگرام و کشور از fragment</td><td class="status-ok">✅ کامل</td></tr>
+    <tr><td>تست TCP + اندازه‌گیری latency</td><td class="status-ok">✅ کامل</td></tr>
+    <tr><td>Concurrent testing (Semaphore 10)</td><td class="status-ok">✅ کامل</td></tr>
+    <tr><td>MongoDB upsert (بدون duplicate)</td><td class="status-ok">✅ کامل</td></tr>
+    <tr><td>Proxy به Cloudflare Worker</td><td class="status-no">❌ غایب</td></tr>
+    <tr><td>Vote endpoint</td><td class="status-no">❌ غایب</td></tr>
+  </table>
+
+  <!-- Section 5 -->
+  <h2 id="missing"><span class="num">۵</span>بخش‌های ناقص</h2>
+  <div class="priority-section">
+    <div class="priority-card p0">
+      <span class="priority-label p0-label">P0 — بحرانی</span>
+      <h4>یکپارچه‌سازی با VPN Bot Pro API</h4>
+      <p>اپ از Cloudflare Worker استفاده نمی‌کند. باید endpoint های <code>/api/configs</code>، <code>/api/countries</code>، <code>/api/sub</code> مستقیماً فراخوانی شوند.</p>
+    </div>
+    <div class="priority-card p0">
+      <span class="priority-label p0-label">P0 — بحرانی</span>
+      <h4>سیستم Vote / Auto-Like</h4>
+      <p>بعد از هر تست TCP موفق، باید <code>POST /dashboard/api/vote</code> با <code>"vote":"like"</code> ارسال شود تا Quality Score بهبود یابد.</p>
+    </div>
+    <div class="priority-card p0">
+      <span class="priority-label p0-label">P0 — بحرانی</span>
+      <h4>سیستم Subscription Code</h4>
+      <p>کاربران باید کد اشتراک (<code>AdminID-ClientID</code>) وارد کنند و از <code>GET /api/user-sub?code=...</code> کانفیگ شخصی دریافت کنند.</p>
+    </div>
+    <div class="priority-card p1">
+      <span class="priority-label p1-label">P1 — مهم</span>
+      <h4>Country Filter با UI Picker</h4>
+      <p>فراخوانی <code>GET /api/countries</code> و نمایش BottomSheet/Modal برای انتخاب کشور با پرچم emoji.</p>
+    </div>
+    <div class="priority-card p1">
+      <span class="priority-label p1-label">P1 — مهم</span>
+      <h4>کپی Raw Config + QR Code</h4>
+      <p>نمایش <code>vless://...</code> در فرمت monospace، دکمه کپی با Haptic feedback، و QR Code برای import.</p>
+    </div>
+    <div class="priority-card p1">
+      <span class="priority-label p1-label">P1 — مهم</span>
+      <h4>بررسی آپدیت اپ + اعلانات</h4>
+      <p>فراخوانی <code>/api/app-update</code> هنگام راه‌اندازی و نمایش Modal اجباری اگر <code>force: true</code>. نمایش Banner اعلانات از <code>/api/announcements</code>.</p>
+    </div>
+    <div class="priority-card p2">
+      <span class="priority-label p2-label">P2 — توسعه</span>
+      <h4>جستجو + مرتب‌سازی + صفحه جزئیات</h4>
+      <p>SearchBar با فیلتر real-time، مرتب‌سازی چندگانه، و Detail View با QR Code و share.</p>
+    </div>
+  </div>
+
+  <!-- Section 6 -->
+  <h2 id="debt"><span class="num">۶</span>بدهی‌های فنی (Technical Debt)</h2>
+  <table>
+    <tr><th>مشکل</th><th>فایل‌ها</th><th>راه‌حل</th></tr>
+    <tr><td>COLORS object تکراری</td><td>3 فایل tsx</td><td><code>constants/colors.ts</code></td></tr>
+    <tr><td>API_BASE تکراری</td><td>3 فایل tsx</td><td><code>constants/api.ts</code></td></tr>
+    <tr><td>openTelegram تکراری</td><td>index + configs</td><td><code>utils/links.ts</code></td></tr>
+    <tr><td>حذف کل DB هنگام fetch</td><td>server.py</td><td>تفکیک insert از delete</td></tr>
+    <tr><td>بدون Error handling</td><td>configs.tsx</td><td>Try/catch + Error state UI</td></tr>
+    <tr><td>بدون آفلاین</td><td>همه</td><td>Cache در AsyncStorage</td></tr>
+    <tr><td>متن RTL/LTR Mixed</td><td>همه</td><td>writingDirection property</td></tr>
+  </table>
+
+  <hr class="divider">
+
+  <!-- Section 9 -->
+  <h2 id="strengths"><span class="num">۹</span>نقاط قوت</h2>
+  <table>
+    <tr><th>بخش</th><th>نقطه قوت</th></tr>
+    <tr><td><strong>UI/UX</strong></td><td>رنگ‌بندی تاریک حرفه‌ای <code>#0B0F19</code> + accent سبز <code>#00FF94</code></td></tr>
+    <tr><td><strong>انیمیشن</strong></td><td>Glow Ring + Pulse animation دکمه اتصال واقعی‌گرایانه است</td></tr>
+    <tr><td><strong>RTL</strong></td><td>پیاده‌سازی‌شده از ابتدا با I18nManager.forceRTL</td></tr>
+    <tr><td><strong>TypeScript</strong></td><td>کد type-safe با interface‌های تعریف‌شده</td></tr>
+    <tr><td><strong>Parser</strong></td><td>4 پروتکل کامل با edge-case handling (IPv6، legacy base64)</td></tr>
+    <tr><td><strong>Concurrent</strong></td><td>Semaphore(10) برای تست همزمان — سریع و بهینه</td></tr>
+    <tr><td><strong>Telegram</strong></td><td>استخراج channel از fragment + لینک مستقیم</td></tr>
+    <tr><td><strong>Bot Pro</strong></td><td>کاملاً Serverless، Quality Score، Sharded Storage (2000 config)</td></tr>
+  </table>
+
+  <!-- Section 10 -->
+  <h2 id="weaknesses"><span class="num">۱۰</span>نقاط ضعف</h2>
+  <table>
+    <tr><th>ضعف</th><th>تأثیر</th><th>اولویت</th></tr>
+    <tr><td>بدون اتصال VPN واقعی</td><td>کاربر گمراه می‌شود</td><td class="status-no">P0</td></tr>
+    <tr><td>Vote System غایب</td><td>Quality Score بهبود نمی‌یابد</td><td class="status-no">P0</td></tr>
+    <tr><td>Subscription Code غایب</td><td>مهم‌ترین ویژگی Bot Pro</td><td class="status-no">P0</td></tr>
+    <tr><td>Raw Config کپی نمی‌شود</td><td>تجربه کاربری ضعیف</td><td class="status-partial">P1</td></tr>
+    <tr><td>فیلتر کشور بدون UI</td><td>کاربر نمی‌تواند کشور انتخاب کند</td><td class="status-partial">P1</td></tr>
+    <tr><td>Bot Pro API استفاده نمی‌شود</td><td>دوباره‌کاری — از Quality Score بی‌بهره</td><td class="status-no">P0</td></tr>
+    <tr><td>کد تکراری در 3 فایل</td><td>نگهداری دشوار</td><td class="status-ok">P2</td></tr>
+  </table>
+
+  <!-- Section 11 -->
+  <h2 id="roadmap"><span class="num">۱۱</span>نقشه راه تکمیل</h2>
+  <div class="roadmap">
+    <div class="phase">
+      <div class="phase-num">۱</div>
+      <div class="phase-content">
+        <div class="phase-title">اتصال به VPN Bot Pro API</div>
+        <ul class="phase-items">
+          <li>اضافه کردن CLOUDFLARE_WORKER_URL به تنظیمات</li>
+          <li>Backend: Proxy endpoint به /api/configs، /api/countries</li>
+          <li>اپ: بررسی آپدیت + اعلانات هنگام راه‌اندازی</li>
+        </ul>
+        <span class="phase-time">۱–۲ روز</span>
+      </div>
+    </div>
+    <div class="phase">
+      <div class="phase-num">۲</div>
+      <div class="phase-content">
+        <div class="phase-title">Vote System (Auto-Like)</div>
+        <ul class="phase-items">
+          <li>Backend: Endpoint ارسال vote به Bot Pro</li>
+          <li>اپ: auto-like بعد از موفقیت TCP test</li>
+          <li>اپ: دکمه Report (dislike) در لیست</li>
+        </ul>
+        <span class="phase-time">۱ روز</span>
+      </div>
+    </div>
+    <div class="phase">
+      <div class="phase-num">۳</div>
+      <div class="phase-content">
+        <div class="phase-title">Country Filter با UI</div>
+        <ul class="phase-items">
+          <li>فراخوانی /api/countries</li>
+          <li>Country Picker (BottomSheet)</li>
+          <li>پرچم emoji + پاس country=XX به API</li>
+        </ul>
+        <span class="phase-time">۱ روز</span>
+      </div>
+    </div>
+    <div class="phase">
+      <div class="phase-num">۴</div>
+      <div class="phase-content">
+        <div class="phase-title">Subscription Code System</div>
+        <ul class="phase-items">
+          <li>تب "اشتراک" جدید</li>
+          <li>Input کد + فراخوانی /api/user-sub?code=...</li>
+          <li>Decode Base64 + نمایش کانفیگ شخصی</li>
+          <li>گزارش مصرف به /api/user-sub/report</li>
+        </ul>
+        <span class="phase-time">۲ روز</span>
+      </div>
+    </div>
+    <div class="phase">
+      <div class="phase-num">۵</div>
+      <div class="phase-content">
+        <div class="phase-title">Copy Config + QR Code</div>
+        <ul class="phase-items">
+          <li>دکمه کپی raw config + Haptic feedback</li>
+          <li>Modal جزئیات کامل</li>
+          <li>QR Code برای import به v2rayNG</li>
+        </ul>
+        <span class="phase-time">۱ روز</span>
+      </div>
+    </div>
+    <div class="phase">
+      <div class="phase-num">۶</div>
+      <div class="phase-content">
+        <div class="phase-title">Refactoring + UX بهبود</div>
+        <ul class="phase-items">
+          <li>استخراج COLORS و API_BASE به فایل مشترک</li>
+          <li>Error states کاربرپسند فارسی</li>
+          <li>Loading skeleton + Offline cache</li>
+        </ul>
+        <span class="phase-time">۱ روز</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 15 -->
+  <h2 id="summary"><span class="num">۱۵</span>خلاصه وضعیت فعلی</h2>
+  <div class="progress-grid">
+    <div class="progress-item">
+      <div class="label">UI اصلی (3 تب)</div>
+      <div class="progress-bar-bg"><div class="progress-fill" style="width:75%;background:#58a6ff;"></div></div>
+      <div class="pct" style="color:#58a6ff;">75%</div>
+    </div>
+    <div class="progress-item">
+      <div class="label">Parse کانفیگ</div>
+      <div class="progress-bar-bg"><div class="progress-fill" style="width:95%;background:#00FF94;"></div></div>
+      <div class="pct" style="color:#00FF94;">95%</div>
+    </div>
+    <div class="progress-item">
+      <div class="label">TCP Testing</div>
+      <div class="progress-bar-bg"><div class="progress-fill" style="width:90%;background:#00FF94;"></div></div>
+      <div class="pct" style="color:#00FF94;">90%</div>
+    </div>
+    <div class="progress-item">
+      <div class="label">Vote System</div>
+      <div class="progress-bar-bg"><div class="progress-fill" style="width:0%;background:#f85149;"></div></div>
+      <div class="pct" style="color:#f85149;">0%</div>
+    </div>
+    <div class="progress-item">
+      <div class="label">Country Filter</div>
+      <div class="progress-bar-bg"><div class="progress-fill" style="width:20%;background:#f0b429;"></div></div>
+      <div class="pct" style="color:#f0b429;">20%</div>
+    </div>
+    <div class="progress-item">
+      <div class="label">Subscription Code</div>
+      <div class="progress-bar-bg"><div class="progress-fill" style="width:0%;background:#f85149;"></div></div>
+      <div class="pct" style="color:#f85149;">0%</div>
+    </div>
+    <div class="progress-item">
+      <div class="label">App Update / اعلانات</div>
+      <div class="progress-bar-bg"><div class="progress-fill" style="width:0%;background:#f85149;"></div></div>
+      <div class="pct" style="color:#f85149;">0%</div>
+    </div>
+    <div class="progress-item">
+      <div class="label">Copy Raw Config</div>
+      <div class="progress-bar-bg"><div class="progress-fill" style="width:0%;background:#f85149;"></div></div>
+      <div class="pct" style="color:#f85149;">0%</div>
+    </div>
+    <div class="progress-item">
+      <div class="label">یکپارچگی Bot Pro</div>
+      <div class="progress-bar-bg"><div class="progress-fill" style="width:5%;background:#f85149;"></div></div>
+      <div class="pct" style="color:#f85149;">5%</div>
+    </div>
+  </div>
+
+  <div class="summary-total">
+    <div class="big-pct">~45%</div>
+    <div class="big-pct-sub">پیشرفت کلی پروژه</div>
+  </div>
+
+</main>
+
+</body>
+</html>
