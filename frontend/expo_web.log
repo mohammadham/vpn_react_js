@@ -1,0 +1,57 @@
+
+> frontend@1.0.0 web
+> expo start --web
+
+env: load .env
+env: export EXPO_TUNNEL_SUBDOMAIN EXPO_PACKAGER_HOSTNAME EXPO_PUBLIC_BACKEND_URL EXPO_USE_FAST_RESOLVER METRO_CACHE_ROOT
+Starting project at /app/frontend
+Fast resolver is enabled.
+Starting Metro Bundler
+Waiting on http://localhost:8081
+Logs for your project will appear below.
+Web node_modules/expo-router/entry.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+λ node_modules/expo-router/node/render.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web node_modules/expo-router/entry.js ▓▓▓▓▓░░░░░░░░░░░ 35.1% ( 74/236)
+λ node_modules/expo-router/node/render.js ░░░░░░░░░░░░░░░░  3.1% ( 12/111)
+Web node_modules/expo-router/entry.js ▓▓▓▓▓░░░░░░░░░░░ 35.1% (238/418)
+λ node_modules/expo-router/node/render.js ▓▓░░░░░░░░░░░░░░ 18.0% (131/316)
+Web node_modules/expo-router/entry.js ▓▓▓▓▓▓▓░░░░░░░░░ 49.0% (437/624)
+λ node_modules/expo-router/node/render.js ▓▓▓▓▓▓░░░░░░░░░░ 40.5% (308/484)
+Web node_modules/expo-router/entry.js ▓▓▓▓▓▓▓▓▓▓▓▓░░░░ 75.7% (617/709)
+λ node_modules/expo-router/node/render.js ▓▓▓▓▓▓▓▓▓▓░░░░░░ 65.5% (493/619)
+Web node_modules/expo-router/entry.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 95.5% (859/879)
+λ node_modules/expo-router/node/render.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 94.1% (711/733)
+Web Bundled 18577ms node_modules/expo-router/entry.js (883 modules)
+λ Bundled 18798ms node_modules/expo-router/node/render.js (830 modules)
+"shadow*" style props are deprecated. Use "boxShadow".
+λ  WARN  Route "./constants/api.ts" is missing the required default export. Ensure a React component is exported as default.
+λ  WARN  Route "./constants/colors.ts" is missing the required default export. Ensure a React component is exported as default.
+λ  WARN  Route "./services/V2RayService.ts" is missing the required default export. Ensure a React component is exported as default.
+λ  WARN  Route "./services/apiService.ts" is missing the required default export. Ensure a React component is exported as default.
+λ  WARN  Route "./services/testService.ts" is missing the required default export. Ensure a React component is exported as default.
+λ  WARN  Route "./store/useAppStore.ts" is missing the required default export. Ensure a React component is exported as default.
+λ  WARN  Route "./types/index.ts" is missing the required default export. Ensure a React component is exported as default.
+λ  WARN  Route "./utils/links.ts" is missing the required default export. Ensure a React component is exported as default.
+λ  WARN  Route "./utils/parser.ts" is missing the required default export. Ensure a React component is exported as default.
+λ  WARN  props.pointerEvents is deprecated. Use style.pointerEvents
+Web node_modules/expo-router/entry.js ▓▓▓▓▓░░░░░░░░░░░ 35.1% ( 28/138)
+Web node_modules/expo-router/entry.js ▓▓▓▓▓▓▓▓▓░░░░░░░ 57.5% (480/633)
+Web node_modules/expo-router/entry.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 94.1% (835/861)
+Web Bundled 7713ms node_modules/expo-router/entry.js (884 modules)
+ LOG  [web] Logs will appear in the browser console
+Web node_modules/expo-router/entry.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+"shadow*" style props are deprecated. Use "boxShadow".
+λ  WARN  Route "./constants/api.ts" is missing the required default export. Ensure a React component is exported as default.
+λ  WARN  Route "./constants/colors.ts" is missing the required default export. Ensure a React component is exported as default.
+λ  WARN  Route "./services/V2RayService.ts" is missing the required default export. Ensure a React component is exported as default.
+λ  WARN  Route "./services/apiService.ts" is missing the required default export. Ensure a React component is exported as default.
+λ  WARN  Route "./services/testService.ts" is missing the required default export. Ensure a React component is exported as default.
+λ  WARN  Route "./store/useAppStore.ts" is missing the required default export. Ensure a React component is exported as default.
+λ  WARN  Route "./types/index.ts" is missing the required default export. Ensure a React component is exported as default.
+λ  WARN  Route "./utils/links.ts" is missing the required default export. Ensure a React component is exported as default.
+λ  WARN  Route "./utils/parser.ts" is missing the required default export. Ensure a React component is exported as default.
+λ  WARN  props.pointerEvents is deprecated. Use style.pointerEvents
+λ Bundled 52ms node_modules/expo-router/node/render.js (1 module)
+Web Bundled 491ms node_modules/expo-router/entry.js (1 module)
+Web Bundled 39ms node_modules/expo-router/entry.js (1 module)
+ LOG  [web] Logs will appear in the browser console
