@@ -16,7 +16,7 @@ import { apiService } from '../services/apiService';
 import { TestTarget } from '../types';
 
 export default function SettingsScreen() {
-  const { disconnect, testTarget, setTestTarget } = useAppStore();
+  const { disconnect, testTarget, setTestTarget, autoSwitchEnabled, setAutoSwitchEnabled } = useAppStore();
   const [notifications, setNotifications] = useState(true);
   const [autoConnect, setAutoConnect] = useState(false);
   const [testTargets, setTestTargets] = useState<TestTarget[]>([]);
@@ -98,6 +98,14 @@ export default function SettingsScreen() {
               type="switch"
               value={autoConnect}
               onPress={() => setAutoConnect(!autoConnect)}
+            />
+            <View style={styles.divider} />
+            <SettingItem
+              icon="shuffle-variant"
+              title="تغییر خودکار در صورت قطعی"
+              type="switch"
+              value={autoSwitchEnabled}
+              onPress={() => setAutoSwitchEnabled(!autoSwitchEnabled)}
             />
           </View>
         </View>

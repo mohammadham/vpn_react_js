@@ -2,6 +2,7 @@ import { WORKER_URL } from '../constants/api';
 import { Country, ConfigResult, SubscriptionInfo } from '../types';
 
 export const apiService = {
+  WORKER_URL,
   async getCountries(): Promise<Country[]> {
     const response = await fetch(`${WORKER_URL}/api/countries`);
     if (!response.ok) throw new Error('Failed to fetch countries');

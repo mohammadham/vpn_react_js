@@ -44,3 +44,31 @@ export interface TestTarget {
   port: number;
   method: string;
 }
+
+export interface AppUpdate {
+  version: string;
+  description: string;
+  link: string;
+  force: boolean;
+}
+
+export interface Announcement {
+  title: string;
+  message: string;
+  active: boolean;
+}
+
+export interface Ad {
+  id: string;
+  title: string;
+  content: string;
+  image?: string;
+  link?: string;
+}
+
+export interface TrafficStats {
+  downSpeed: string; // e.g. "1.2 MB/s"
+  upSpeed: string;
+  downTotal: string;
+  upTotal: string;
+}

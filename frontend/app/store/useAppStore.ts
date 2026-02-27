@@ -11,6 +11,12 @@ interface AppState {
   localConfigs: ConfigResult[];
   lastFetchedAt: number;
 
+  // New Features
+  autoSwitchEnabled: boolean;
+  lastAd: any | null;
+  userIP: string | null;
+  trafficStats: { downSpeed: string; upSpeed: string; downTotal: string; upTotal: string } | null;
+
   setConnectionState: (state: ConnectionState) => void;
   setBestConfig: (config: ConfigResult | null) => void;
   setSelectedCountry: (country: Country | null) => void;
@@ -22,6 +28,8 @@ interface AppState {
 
   loadInitialState: () => Promise<void>;
   disconnect: () => Promise<void>;
+  setAutoSwitchEnabled: (enabled: boolean) => void;
+  setLastAd: (ad: any) => void;
 }
 
 export const useAppStore = create<AppState>((set, get) => ({
@@ -32,6 +40,10 @@ export const useAppStore = create<AppState>((set, get) => ({
   testTarget: null,
   localConfigs: [],
   lastFetchedAt: 0,
+  autoSwitchEnabled: false,
+  lastAd: null,
+  userIP: null,
+  trafficStats: null,
 
   setConnectionState: (state) => set({ connectionState: state }),
 
@@ -105,13 +117,15 @@ export const useAppStore = create<AppState>((set, get) => ({
 
   loadInitialState: async () => {
     try {
-      const [bestConfig, selectedCountry, subscription, testTarget, localConfigs, lastFetchedAt] = await Promise.all([
+      const [bestConfig, selectedCountry, subscription, testTarget, localConfigs, lastFetchedAt, autoSwitch, lastAd] = await Promise.all([
         AsyncStorage.getItem('bestConfig'),
         AsyncStorage.getItem('selectedCountry'),
         AsyncStorage.getItem('subscription'),
         AsyncStorage.getItem('testTarget'),
         AsyncStorage.getItem('localConfigs'),
         AsyncStorage.getItem('lastFetchedAt'),
+        AsyncStorage.getItem('autoSwitchEnabled'),
+        AsyncStorage.getItem('lastAd'),
       ]);
 
       set({
@@ -121,6 +135,8 @@ export const useAppStore = create<AppState>((set, get) => ({
         testTarget: testTarget ? JSON.parse(testTarget) : null,
         localConfigs: localConfigs ? JSON.parse(localConfigs) : [],
         lastFetchedAt: lastFetchedAt ? parseInt(lastFetchedAt) : 0,
+        autoSwitchEnabled: autoSwitch === 'true',
+        lastAd: lastAd ? JSON.parse(lastAd) : null,
       });
     } catch (e) {
       console.error('Failed to load initial state', e);
@@ -128,7 +144,17 @@ export const useAppStore = create<AppState>((set, get) => ({
   },
 
   disconnect: async () => {
-    set({ connectionState: 'disconnected', bestConfig: null });
+    set({ connectionState: 'disconnected', bestConfig: null, userIP: null, trafficStats: null });
     await AsyncStorage.removeItem('bestConfig');
-  }
+  },
+
+  setAutoSwitchEnabled: (enabled) => {
+    set({ autoSwitchEnabled: enabled });
+    AsyncStorage.setItem('autoSwitchEnabled', enabled.toString());
+  },
+
+  setLastAd: (ad) => {
+    set({ lastAd: ad });
+    AsyncStorage.setItem('lastAd', JSON.stringify(ad));
+  },
 }));

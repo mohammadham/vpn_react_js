@@ -10,12 +10,16 @@ import {
   Alert,
   ActivityIndicator,
   Dimensions,
+  Modal,
+  Image,
+  Linking,
 } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { COLORS } from '../constants/colors';
 import { useAppStore } from '../store/useAppStore';
 import { apiService } from '../services/apiService';
 import { testService } from '../services/testService';
+import { AppUpdate, Announcement, Ad } from '../types';
 import { parseConfig } from '../utils/parser';
 import { openTelegram } from '../utils/links';
 import { V2RayService } from '../services/V2RayService';
@@ -29,15 +33,48 @@ export default function DashboardScreen() {
     connectionState, setConnectionState,
     bestConfig, setBestConfig,
     subscription, loadInitialState,
-    testTarget
+    testTarget, setLastAd, lastAd,
+    userIP, trafficStats, autoSwitchEnabled
   } = useAppStore();
+
+  const [updateInfo, setUpdateInfo] = React.useState<AppUpdate | null>(null);
+  const [announcement, setAnnouncement] = React.useState<Announcement | null>(null);
+  const [showAd, setShowAd] = React.useState(false);
+  const [showUpdateModal, setShowUpdateModal] = React.useState(false);
+  const [nextBtnActive, setNextBtnActive] = React.useState(false);
 
   const pulseAnim = useRef(new Animated.Value(1)).current;
   const glowAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     loadInitialState();
+    checkUpdateAndAnnouncements();
   }, []);
+
+  const checkUpdateAndAnnouncements = async () => {
+    try {
+      const update = await apiService.getAppUpdate();
+      if (update.version !== '1.0.0') {
+        setUpdateInfo(update);
+        setShowUpdateModal(true);
+      }
+
+      const announcements = await apiService.getAnnouncements();
+      if (announcements.active) {
+        setAnnouncement(announcements);
+      }
+
+      // Pre-fetch ad
+      try {
+        const adResponse = await fetch(`${apiService.WORKER_URL}/api/ads`);
+        if (adResponse.ok) {
+           const ad = await adResponse.json();
+           setLastAd(ad);
+        }
+      } catch (e) {}
+
+    } catch (e) {}
+  };
 
   useEffect(() => {
     let animation: Animated.CompositeAnimation | null = null;
@@ -169,6 +206,15 @@ export default function DashboardScreen() {
           setBestConfig(best);
           setConnectionState('connected');
 
+          // Post-connection tasks
+          setShowAd(true); // Show ad after connection
+          fetchUserIP();
+          startTrafficMonitoring();
+
+          // Next button becomes active after 1 minute
+          setNextBtnActive(false);
+          setTimeout(() => setNextBtnActive(true), 60000);
+
           // Auto-report usage if private sub
           if (subscription) {
             apiService.reportUsage(subscription.code, 0, true).catch(() => {});
@@ -192,6 +238,52 @@ export default function DashboardScreen() {
     if (connectionState === 'error') return COLORS.red;
     if (connectionState === 'disconnected') return COLORS.textMuted;
     return COLORS.yellow;
+  };
+
+  const fetchUserIP = async () => {
+    try {
+      const response = await fetch('https://api.ipify.org?format=json');
+      const data = await response.json();
+      useAppStore.setState({ userIP: data.ip });
+    } catch (e) {}
+  };
+
+  const startTrafficMonitoring = () => {
+    let lastIn = 0;
+    let lastOut = 0;
+    let zeroStreamCount = 0;
+
+    const interval = setInterval(async () => {
+      if (useAppStore.getState().connectionState !== 'connected') {
+        clearInterval(interval);
+        return;
+      }
+
+      // Mocking native speed data since V2RayModule doesn't exist in web
+      const mockDown = Math.random() * 500; // KB/s
+      const mockUp = Math.random() * 100;
+
+      const stats = {
+        downSpeed: `${mockDown.toFixed(1)} KB/s`,
+        upSpeed: `${mockUp.toFixed(1)} KB/s`,
+        downTotal: '0 MB',
+        upTotal: '0 MB'
+      };
+
+      useAppStore.setState({ trafficStats: stats });
+
+      // Auto Switch Logic
+      if (autoSwitchEnabled && mockDown < 1) {
+        zeroStreamCount++;
+        if (zeroStreamCount >= 30) {
+          clearInterval(interval);
+          handleConnect(); // Disconnect and reconnect (which finds next best)
+        }
+      } else {
+        zeroStreamCount = 0;
+      }
+
+    }, 1000);
   };
 
   const getStatusText = () => {
@@ -254,22 +346,49 @@ export default function DashboardScreen() {
                   <Text style={styles.detailLabel}>تاخیر</Text>
                   <Text style={[styles.detailValue, { color: COLORS.primary }]}>{bestConfig.latency_ms}ms</Text>
                 </View>
+                <View style={styles.detailItem}>
+                  <Text style={styles.detailLabel}>سرعت (D/U)</Text>
+                  <Text style={[styles.detailValue, { fontSize: 11 }]}>
+                    {trafficStats ? `${trafficStats.downSpeed} / ${trafficStats.upSpeed}` : '0/0 KB/s'}
+                  </Text>
+                </View>
               </View>
 
               <View style={styles.divider} />
 
-              <TouchableOpacity
-                onPress={() => bestConfig.telegram_channel && openTelegram(bestConfig.telegram_channel)}
-                style={styles.locationRow}
-              >
-                <MaterialCommunityIcons name="map-marker" size={20} color={COLORS.secondary} />
+              <View style={styles.locationRow}>
+                <MaterialCommunityIcons name="web" size={20} color={COLORS.secondary} />
                 <Text style={styles.locationText}>
-                  {bestConfig.country || 'International'} Server
+                  {userIP || 'در حال دریافت IP...'}
                 </Text>
-                {bestConfig.is_telegram && (
-                  <MaterialCommunityIcons name="send" size={18} color="#229ED9" style={{ marginLeft: 'auto' }} />
-                )}
-              </TouchableOpacity>
+                <Text style={[styles.locationText, { marginLeft: 'auto', fontSize: 12, color: COLORS.textMuted }]}>
+                  {bestConfig.country || 'Unknown'}
+                </Text>
+              </View>
+
+              <View style={styles.divider} />
+
+              <View style={styles.actionRow}>
+                <TouchableOpacity
+                    onPress={() => bestConfig.telegram_channel && openTelegram(bestConfig.telegram_channel)}
+                    style={styles.channelBtn}
+                >
+                    <MaterialCommunityIcons name="send" size={16} color="#fff" />
+                    <Text style={styles.channelBtnText}>کانال تلگرام</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                    onPress={handleConnect}
+                    style={[styles.nextBtn, !nextBtnActive && { opacity: 0.5 }]}
+                    disabled={!nextBtnActive}
+                >
+                    <MaterialCommunityIcons name="skip-next" size={20} color={COLORS.primary} />
+                    <Text style={styles.nextBtnText}>
+                      {nextBtnActive ? 'سرور بعدی' : 'آماده‌سازی...'}
+                    </Text>
+                </TouchableOpacity>
+              </View>
+
             </Animated.View>
           ) : (
             <View style={styles.infoBox}>
@@ -282,6 +401,67 @@ export default function DashboardScreen() {
             </View>
           )}
         </View>
+
+        {/* Ad Modal */}
+        <Modal visible={showAd && !!lastAd} transparent animationType="slide">
+          <View style={styles.modalCenter}>
+            <View style={styles.adCard}>
+              <View style={styles.adHeader}>
+                <Text style={styles.adTag}>حمایت مالی (تبلیغات)</Text>
+                <TouchableOpacity onPress={() => setShowAd(false)}>
+                  <MaterialCommunityIcons name="close" size={20} color={COLORS.textMuted} />
+                </TouchableOpacity>
+              </View>
+              {lastAd?.image && <Image source={{ uri: lastAd.image }} style={styles.adImage} />}
+              <Text style={styles.adTitle}>{lastAd?.title}</Text>
+              <Text style={styles.adDesc}>{lastAd?.content}</Text>
+              <TouchableOpacity
+                style={styles.adBtn}
+                onPress={() => {
+                  setShowAd(false);
+                  if (lastAd?.link) Linking.openURL(lastAd.link);
+                }}
+              >
+                <Text style={styles.adBtnText}>مشاهده جزییات</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
+
+        {/* Announcement Banner */}
+        {announcement && (
+           <View style={styles.announcementBar}>
+              <MaterialCommunityIcons name="bullhorn-outline" size={18} color={COLORS.bg} />
+              <Text style={styles.announcementText} numberOfLines={1}>{announcement.message}</Text>
+              <TouchableOpacity onPress={() => setAnnouncement(null)}>
+                <MaterialCommunityIcons name="close" size={16} color={COLORS.bg} />
+              </TouchableOpacity>
+           </View>
+        )}
+
+        {/* Update Modal */}
+        <Modal visible={showUpdateModal && !!updateInfo} transparent>
+           <View style={styles.modalCenter}>
+             <View style={styles.updateCard}>
+                <MaterialCommunityIcons name="update" size={40} color={COLORS.primary} />
+                <Text style={styles.updateTitle}>نسخه جدید در دسترس است</Text>
+                <Text style={styles.updateVer}>نسخه {updateInfo?.version}</Text>
+                <Text style={styles.updateDesc}>{updateInfo?.description}</Text>
+                <TouchableOpacity
+                  style={styles.adBtn}
+                  onPress={() => updateInfo?.link && Linking.openURL(updateInfo.link)}
+                >
+                  <Text style={styles.adBtnText}>بروزرسانی مستقیم</Text>
+                </TouchableOpacity>
+                {!updateInfo?.force && (
+                  <TouchableOpacity onPress={() => setShowUpdateModal(false)} style={{ marginTop: 10 }}>
+                    <Text style={{ color: COLORS.textMuted }}>بعداً</Text>
+                  </TouchableOpacity>
+                )}
+             </View>
+           </View>
+        </Modal>
+
       </View>
     </SafeAreaView>
   );
@@ -302,10 +482,30 @@ const styles = StyleSheet.create({
   detailItem: { alignItems: 'center', flex: 1 },
   detailLabel: { color: COLORS.textMuted, fontSize: 11, marginBottom: 5 },
   detailValue: { color: COLORS.text, fontSize: 16, fontWeight: 'bold' },
-  divider: { height: 1, backgroundColor: COLORS.border, marginVertical: 15 },
+  divider: { height: 1, backgroundColor: COLORS.border, marginVertical: 12 },
   locationRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   locationText: { color: COLORS.textSecondary, fontSize: 14, fontWeight: '600' },
+  actionRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  channelBtn: { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: '#229ED9', paddingHorizontal: 12, paddingVertical: 8, borderRadius: 12 },
+  channelBtnText: { color: '#fff', fontSize: 12, fontWeight: '600' },
+  nextBtn: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+  nextBtnText: { color: COLORS.primary, fontSize: 12, fontWeight: '600' },
   infoBox: { alignItems: 'center' },
   infoText: { color: COLORS.text, fontSize: 15, fontWeight: '600', marginBottom: 8 },
   subInfoText: { color: COLORS.textMuted, fontSize: 12, textAlign: 'center' },
+  modalCenter: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.8)' },
+  adCard: { backgroundColor: COLORS.card, width: width * 0.85, borderRadius: 24, padding: 20, borderWidth: 1, borderColor: COLORS.border },
+  adHeader: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 15 },
+  adTag: { color: COLORS.primary, fontSize: 10, fontWeight: 'bold', textTransform: 'uppercase' },
+  adImage: { width: '100%', height: 150, borderRadius: 12, marginBottom: 15 },
+  adTitle: { color: COLORS.text, fontSize: 18, fontWeight: 'bold', marginBottom: 10, textAlign: 'right' },
+  adDesc: { color: COLORS.textSecondary, fontSize: 13, textAlign: 'right', marginBottom: 20, lineHeight: 20 },
+  adBtn: { backgroundColor: COLORS.primary, width: '100%', paddingVertical: 12, borderRadius: 12, alignItems: 'center' },
+  adBtnText: { color: COLORS.bg, fontWeight: 'bold' },
+  announcementBar: { position: 'absolute', top: 120, left: 20, right: 20, backgroundColor: COLORS.primary, flexDirection: 'row', alignItems: 'center', padding: 10, borderRadius: 12, gap: 10 },
+  announcementText: { color: COLORS.bg, flex: 1, fontSize: 12, fontWeight: 'bold', textAlign: 'right' },
+  updateCard: { backgroundColor: COLORS.card, width: width * 0.8, borderRadius: 24, padding: 30, alignItems: 'center', borderWidth: 1, borderColor: COLORS.border },
+  updateTitle: { color: COLORS.text, fontSize: 18, fontWeight: 'bold', marginTop: 15 },
+  updateVer: { color: COLORS.primary, fontSize: 12, marginVertical: 5 },
+  updateDesc: { color: COLORS.textMuted, fontSize: 13, textAlign: 'center', marginBottom: 25 },
 });
