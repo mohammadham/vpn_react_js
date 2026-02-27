@@ -1,0 +1,64 @@
+name: Android Release Build
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Install Dependencies
+        run: |
+          cd frontend
+          npm install
+
+      - name: Expo Prebuild
+        run: |
+          cd frontend
+          npx expo prebuild --platform android
+
+      - name: Inject Native Modules
+        run: |
+          mkdir -p frontend/android/app/src/main/java/com/v2raymanager/service
+          cp native_source/android/com/v2raymanager/V2RayModule.kt frontend/android/app/src/main/java/com/v2raymanager/
+          cp native_source/android/com/v2raymanager/service/V2RayVpnService.kt frontend/android/app/src/main/java/com/v2raymanager/service/
+
+      - name: Build Android APK (Universal & Split)
+        run: |
+          cd frontend/android
+          chmod +x gradlew
+          ./gradlew assembleRelease
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-apks
+          path: frontend/android/app/build/outputs/apk/release/*.apk
+
+      - name: Create GitHub Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: frontend/android/app/build/outputs/apk/release/*.apk
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
