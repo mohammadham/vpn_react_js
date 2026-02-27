@@ -63,33 +63,101 @@ export default function DashboardScreen() {
     }
 
     setConnectionState('connecting');
+    const { localConfigs, setLocalConfigs, lastFetchedAt, cleanupConfigs, updateConfigMetadata } = useAppStore.getState();
 
     try {
-      let rawConfigs: string[] = [];
+      let finalConfigs: ConfigResult[] = [];
+      const now = Date.now();
+      const shouldFetch = (now - lastFetchedAt > 24 * 60 * 60 * 1000);
 
-      if (subscription && subscription.configs.length > 0) {
-        rawConfigs = subscription.configs;
+      if (shouldFetch) {
+        let rawConfigs: string[] = [];
+        try {
+          if (subscription && subscription.configs.length > 0) {
+            rawConfigs = subscription.configs;
+          } else {
+            rawConfigs = await apiService.getConfigs();
+          }
+        } catch (e) {
+          console.log('Fetch failed, using local cache');
+        }
+
+        if (rawConfigs.length > 0) {
+          const parsed = rawConfigs.map(parseConfig).filter(Boolean) as ConfigResult[];
+
+          // Merge with previous local configs (keep metadata)
+          const newConfigs = parsed.map(c => {
+            const existing = localConfigs.find(lc => lc.config_id === c.config_id);
+            return {
+              ...c,
+              firstSeen: existing?.firstSeen || now,
+              everSucceeded: existing?.everSucceeded || false,
+              isLiked: existing?.isLiked || false,
+              lastTestSuccess: existing?.lastTestSuccess,
+            };
+          });
+
+          // Keep unique configs
+          const merged = [...newConfigs];
+          localConfigs.forEach(lc => {
+            if (!merged.find(mc => mc.config_id === lc.config_id)) {
+              merged.push(lc);
+            }
+          });
+
+          finalConfigs = merged;
+          setLocalConfigs(merged);
+          AsyncStorage.setItem('lastFetchedAt', now.toString());
+          useAppStore.setState({ lastFetchedAt: now });
+        } else {
+          finalConfigs = localConfigs;
+        }
       } else {
-        // Fetch public configs if no subscription
-        rawConfigs = await apiService.getConfigs();
+        finalConfigs = localConfigs;
       }
 
-      if (rawConfigs.length === 0) {
+      cleanupConfigs(); // Remove old dead configs
+
+      if (finalConfigs.length === 0) {
         Alert.alert('خطا', 'هیچ کانفیگی یافت نشد. لطفا اشتراک خود را بررسی کنید.');
         setConnectionState('disconnected');
         return;
       }
 
-      const parsedConfigs = rawConfigs.map(parseConfig).filter(Boolean) as any[];
+      // Priority Sorting
+      const sortedConfigs = [...finalConfigs].sort((a, b) => {
+        // 1. Liked configs first
+        if (a.isLiked !== b.isLiked) return a.isLiked ? -1 : 1;
+
+        // 2. Ever succeeded configs next
+        if (a.everSucceeded !== b.everSucceeded) return a.everSucceeded ? -1 : 1;
+
+        // 3. Last test status: Success (1), Unknown (0), Failure (-1)
+        const getStatusOrder = (c: any) => {
+            if (c.lastTestSuccess === true) return 1;
+            if (c.lastTestSuccess === false) return -1;
+            return 0;
+        };
+        return getStatusOrder(b) - getStatusOrder(a);
+      });
       setConnectionState('testing');
 
       // Test top 20 configs
-      const toTest = parsedConfigs.slice(0, 20);
+      const toTest = sortedConfigs.slice(0, 20);
       const results = await testService.testBatch(
         toTest,
         testTarget?.url,
         testTarget?.method || 'HEAD'
       );
+
+      // Update metadata after test
+      results.forEach(r => {
+        updateConfigMetadata(r.config_id, {
+          lastTestSuccess: r.success,
+          everSucceeded: r.everSucceeded || r.success
+        });
+      });
+
       const successResults = results.filter(r => r.success).sort((a, b) => a.latency_ms - b.latency_ms);
 
       if (successResults.length > 0) {

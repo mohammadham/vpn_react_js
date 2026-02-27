@@ -8,23 +8,30 @@ interface AppState {
   selectedCountry: Country | null;
   subscription: SubscriptionInfo | null;
   testTarget: TestTarget | null;
+  localConfigs: ConfigResult[];
+  lastFetchedAt: number;
 
   setConnectionState: (state: ConnectionState) => void;
   setBestConfig: (config: ConfigResult | null) => void;
   setSelectedCountry: (country: Country | null) => void;
   setSubscription: (sub: SubscriptionInfo | null) => void;
   setTestTarget: (target: TestTarget | null) => void;
+  setLocalConfigs: (configs: ConfigResult[]) => void;
+  updateConfigMetadata: (configId: string, updates: Partial<ConfigResult>) => void;
+  cleanupConfigs: () => void;
 
   loadInitialState: () => Promise<void>;
   disconnect: () => Promise<void>;
 }
 
-export const useAppStore = create<AppState>((set) => ({
+export const useAppStore = create<AppState>((set, get) => ({
   connectionState: 'disconnected',
   bestConfig: null,
   selectedCountry: null,
   subscription: null,
   testTarget: null,
+  localConfigs: [],
+  lastFetchedAt: 0,
 
   setConnectionState: (state) => set({ connectionState: state }),
 
@@ -64,13 +71,47 @@ export const useAppStore = create<AppState>((set) => ({
     }
   },
 
+  setLocalConfigs: (configs) => {
+    set({ localConfigs: configs });
+    AsyncStorage.setItem('localConfigs', JSON.stringify(configs));
+  },
+
+  updateConfigMetadata: (configId, updates) => {
+    const { localConfigs } = get();
+    const updated = localConfigs.map(c =>
+      c.config_id === configId ? { ...c, ...updates } : c
+    );
+    set({ localConfigs: updated });
+    AsyncStorage.setItem('localConfigs', JSON.stringify(updated));
+  },
+
+  cleanupConfigs: () => {
+    const { localConfigs } = get();
+    const now = Date.now();
+    const threeDaysMs = 3 * 24 * 60 * 60 * 1000;
+
+    const cleaned = localConfigs.filter(c => {
+      // Remove if seen > 3 days ago AND never succeeded
+      const isOld = c.firstSeen && (now - c.firstSeen > threeDaysMs);
+      if (isOld && !c.everSucceeded) return false;
+      return true;
+    });
+
+    if (cleaned.length !== localConfigs.length) {
+      set({ localConfigs: cleaned });
+      AsyncStorage.setItem('localConfigs', JSON.stringify(cleaned));
+    }
+  },
+
   loadInitialState: async () => {
     try {
-      const [bestConfig, selectedCountry, subscription, testTarget] = await Promise.all([
+      const [bestConfig, selectedCountry, subscription, testTarget, localConfigs, lastFetchedAt] = await Promise.all([
         AsyncStorage.getItem('bestConfig'),
         AsyncStorage.getItem('selectedCountry'),
         AsyncStorage.getItem('subscription'),
         AsyncStorage.getItem('testTarget'),
+        AsyncStorage.getItem('localConfigs'),
+        AsyncStorage.getItem('lastFetchedAt'),
       ]);
 
       set({
@@ -78,6 +119,8 @@ export const useAppStore = create<AppState>((set) => ({
         selectedCountry: selectedCountry ? JSON.parse(selectedCountry) : null,
         subscription: subscription ? JSON.parse(subscription) : null,
         testTarget: testTarget ? JSON.parse(testTarget) : null,
+        localConfigs: localConfigs ? JSON.parse(localConfigs) : [],
+        lastFetchedAt: lastFetchedAt ? parseInt(lastFetchedAt) : 0,
       });
     } catch (e) {
       console.error('Failed to load initial state', e);
