@@ -19,6 +19,8 @@ import { testService } from '../services/testService';
 import { parseConfig } from '../utils/parser';
 import { openTelegram } from '../utils/links';
 import { V2RayService } from '../services/V2RayService';
+import { ConfigResult } from '../types';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const { width } = Dimensions.get('window');
 
@@ -93,8 +95,8 @@ export default function DashboardScreen() {
               firstSeen: existing?.firstSeen || now,
               everSucceeded: existing?.everSucceeded || false,
               isLiked: existing?.isLiked || false,
-              lastTestSuccess: existing?.lastTestSuccess,
-            };
+              lastTestSuccess: existing?.lastTestSuccess ?? undefined,
+            } as ConfigResult;
           });
 
           // Keep unique configs

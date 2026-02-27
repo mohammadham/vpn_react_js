@@ -60,7 +60,10 @@ export function parseConfig(raw: string): ConfigResult | null {
         is_telegram,
         success: false,
         latency_ms: -1,
-        params: getUrlParams(url.searchParams)
+        params: getUrlParams(url.searchParams),
+        firstSeen: Date.now(),
+        isLiked: false,
+        everSucceeded: false
       };
     } else if (raw.startsWith('vmess://')) {
       const encoded = raw.slice(8);
@@ -91,7 +94,10 @@ export function parseConfig(raw: string): ConfigResult | null {
         is_telegram,
         success: false,
         latency_ms: -1,
-        params
+        params,
+        firstSeen: Date.now(),
+        isLiked: false,
+        everSucceeded: false
       };
     } else if (raw.startsWith('ss://')) {
        // Support legacy and SIP002
@@ -117,7 +123,10 @@ export function parseConfig(raw: string): ConfigResult | null {
               is_telegram,
               success: false,
               latency_ms: -1,
-              params: { method_user: userInfo }
+              params: { method_user: userInfo },
+              firstSeen: Date.now(),
+              isLiked: false,
+              everSucceeded: false
             };
          } else {
             // Legacy base64 SS
@@ -137,7 +146,10 @@ export function parseConfig(raw: string): ConfigResult | null {
                  is_telegram,
                  success: false,
                  latency_ms: -1,
-                 params: { method_user: userInfo }
+                 params: { method_user: userInfo },
+                 firstSeen: Date.now(),
+                 isLiked: false,
+                 everSucceeded: false
                };
             }
          }

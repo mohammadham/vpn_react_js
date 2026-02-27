@@ -14,10 +14,10 @@ export interface ConfigResult {
   quality_score?: number;
   params?: Record<string, string>; // Advanced V2Ray parameters
   // Metadata for local management
-  firstSeen?: number;
+  firstSeen: number;
   lastTestSuccess?: boolean;
-  isLiked?: boolean;
-  everSucceeded?: boolean;
+  isLiked: boolean;
+  everSucceeded: boolean;
   lastFetchedAt?: number;
 }
 

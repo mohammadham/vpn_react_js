@@ -58,7 +58,7 @@ export default function ConfigsScreen() {
         };
       });
 
-      const merged = [...newConfigs];
+      const merged: ConfigResult[] = [...newConfigs];
       localConfigs.forEach(lc => {
         if (!merged.find(mc => mc.config_id === lc.config_id)) {
           merged.push(lc);
